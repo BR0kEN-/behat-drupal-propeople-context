@@ -7,12 +7,12 @@ Each `*.feature` file should start from heading:
 Feature: Example
 ```
 
-The files for testing (images, documents, videos etc.) should be stored in `resources` folder. About directory structure you can read [here](behat/resources/README.md).
+The files for testing (images, documents, videos etc.) should be stored in `resources` folder. About directory structure you can read [here](resources/README.md).
 
 ## Examples
 
-- [Upload an image (Media module)](docs/UPLOAD_MEDIA.md)
-- [Testing emails](docs/EMAILS.md)
+- [Upload an image (Media module)](/docs/UPLOAD_MEDIA.md)
+- [Testing emails](/docs/EMAILS.md)
 
 ## Steps
 

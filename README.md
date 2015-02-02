@@ -1,4 +1,4 @@
-# Behat context by Propeople for testing Drupal sites
+# Behat context by Propeople
 
 The Propeople Drupal Context provide a flexible methods for testing websites, running on Drupal 7. The contexts in this repository extend the contexts of [DrupalExtension](https://github.com/jhedstrom/drupalextension).
 
