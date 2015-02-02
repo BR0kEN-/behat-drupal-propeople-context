@@ -1,0 +1,32 @@
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext: ~
+        - Behat\Drupal\Propeople\PropeopleContext: ~
+        - Drupal\DrupalExtension\Context\MinkContext: ~
+        - Drupal\DrupalExtension\Context\DrupalContext: ~
+  extensions:
+    Behat\MinkExtension:
+      goutte: ~
+      selenium2: ~
+      base_url: <BASE_URL>
+      files_path: resources
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: drupal
+      drupal:
+        drupal_root: <DRUPAL_ROOT>
+      text:
+        log_in: Log in
+        log_out: Log out
+        username_field: Username
+        password_field: Password
+      selectors:
+        message_selector: .messages
+        error_message_selector: .messages.error
+        success_message_selector: .messages.status
+        warning_message_selector: .messages.warning
+      region_map:
+        content: "#content"
+        sidebar: "#sidebar"
