@@ -92,8 +92,10 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
             throw new \Exception('An expected image tag was not found.');
         }
 
+        $file = explode('?', $thumb->getAttribute('src'));
+        $file = $this->getFilesUrl() . '/' . reset($file);
+
         $curl = new CurlService();
-        $file = $this->getFilesUrl() . '/' . @reset(explode('?', $thumb->getAttribute('src')));
         list(, $info) = $curl->execute('GET', $file);
 
         if (empty($info) || strpos($info['content_type'], 'image/') === false) {
@@ -481,10 +483,11 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
                         $page->fillField($this->getDrupalText($name . '_field'), $credential);
                     }
 
-                    $submit = $page->findButton($this->getDrupalText('log_in'));
+                    $button_text = $this->getDrupalText('log_in');
+                    $submit = $page->findButton($button_text);
 
                     if (!$submit) {
-                        $this->throwNoSuchElementException($submit->getText());
+                        $this->throwNoSuchElementException(sprintf('%s text', $button_text));
                     }
 
                     // Log in.

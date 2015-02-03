@@ -4,7 +4,10 @@ The Propeople Drupal Context provide a flexible methods for testing websites, ru
 
 [![Build Status](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/badges/build.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/?branch=master)
-[![Latest Stable Version](https://poser.pugx.org/behat/drupal-propeople-context/v/stable.svg)](https://packagist.org/packages/behat/drupal-propeople-context) [![Total Downloads](https://poser.pugx.org/behat/drupal-propeople-context/downloads.svg)](https://packagist.org/packages/behat/drupal-propeople-context) [![Latest Unstable Version](https://poser.pugx.org/behat/drupal-propeople-context/v/unstable.svg)](https://packagist.org/packages/behat/drupal-propeople-context) [![License](https://poser.pugx.org/behat/drupal-propeople-context/license.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
+[![Latest Stable Version](https://poser.pugx.org/behat/drupal-propeople-context/v/stable.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
+[![Total Downloads](https://poser.pugx.org/behat/drupal-propeople-context/downloads.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
+[![Latest Unstable Version](https://poser.pugx.org/behat/drupal-propeople-context/v/unstable.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
+[![License](https://poser.pugx.org/behat/drupal-propeople-context/license.svg)](https://packagist.org/packages/behat/drupal-propeople-context)
 
 ## Installation
 
