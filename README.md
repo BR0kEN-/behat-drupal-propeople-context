@@ -14,7 +14,7 @@ The Propeople Drupal Context provide a flexible methods for testing websites, ru
 - Read the [documentation](behat/README.md) about creating the features
 
 ## We are using
-- [PSR-4](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md) for autoloading
+- [PSR-4](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md) for autoloading
 - [PSR-2](https://github.com/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) for code style
 
 ## Author

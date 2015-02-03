@@ -14,27 +14,7 @@ Feature: Testing emails
     And login with user credentials that was sent via email
 ```
 
-#### Examples
-
-Checking that email was sent on correct address.
-
-```gherkin
-Then I check that email to "test@propeople.com.ua" was sent
-```
-
-Checking that email body contains the text.
-
-```gherkin
-Then I check that email body contains the "Congratulations" text
-```
-
-If user credentials sent via email, then you can get their and try to login.
-
-```gherkin
-Then I login with user credentials that was sent via email
-```
-
-**IMPORTANT**: This method will works only when the context configured correctly.
+**IMPORTANT**: For login with credentials that have been sent via email you should correctly configure your Behat.
 
 Example of `config.yml`:
 ```yml
@@ -43,7 +23,7 @@ default:
     default:
       contexts:
         - FeatureContext: ~
-        - Behat\Drupal\Propeople\DrupalContext:
+        - Behat\Drupal\Propeople\PropeopleContext:
             mail_account_strings: mail_account_strings
         - Drupal\DrupalExtension\Context\MinkContext: ~
         - Drupal\DrupalExtension\Context\DrupalContext: ~

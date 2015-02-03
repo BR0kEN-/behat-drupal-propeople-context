@@ -7,7 +7,7 @@ Each `*.feature` file should start from heading:
 Feature: Example
 ```
 
-The files for testing (images, documents, videos etc.) should be stored in `resources` folder. About directory structure you can read [here](resources/README.md).
+The files for testing (images, documents, videos etc.) should be stored in [resources](resources) folder.
 
 ## Examples
 
@@ -81,3 +81,5 @@ Then I check that email body contains the "Congratulations" text
 ## To use this step you should correctly configure your Behat.
 Then I login with user credentials that was sent via email
 ```
+
+To see all, available in your system, steps execute the `behat -dl`.
