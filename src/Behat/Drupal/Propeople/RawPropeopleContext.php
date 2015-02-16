@@ -11,9 +11,16 @@ use Behat\Behat\Context\SnippetAcceptingContext;
 // Exceptions.
 use WebDriver\Exception\NoSuchElement;
 
+// Helpers.
+use Behat\Mink\Session;
+use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Element\DocumentElement;
+
 class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingContext
 {
+    const DRUPAL_EXTENSION_CONTEXT_NAMESPACE = 'Drupal\DrupalExtension\Context';
     private $originalMailSystem = array('default-system' => 'DefaultMailSystem');
+    private $workingElement = null;
     private $messages = array();
     private $baseUrl = '';
 
@@ -94,9 +101,11 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
      *
      * @throws NoSuchElement
      */
-    public function throwNoSuchElementException($selector)
+    public function throwNoSuchElementException($selector, $element)
     {
-        throw new NoSuchElement(sprintf('Cannot find an element by "%s" selector.', $selector));
+        if (!$element) {
+            throw new NoSuchElement(sprintf('Cannot find an element by "%s" selector.', $selector));
+        }
     }
 
     /**
@@ -109,29 +118,36 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
 
     /**
      * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *   When context is not specified in "config.yml".
      *
      * @return \Drupal\DrupalExtension\Context\MinkContext
      */
     public function getMinkContext()
     {
-        return $this->getEnvironment()->getContext('Drupal\DrupalExtension\Context\MinkContext');
+        return $this->getEnvironment()->getContext(self::DRUPAL_EXTENSION_CONTEXT_NAMESPACE . '\MinkContext');
     }
 
     /**
      * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *   When context is not specified in "config.yml".
      *
      * @return \Drupal\DrupalExtension\Context\DrupalContext
      */
     public function getDrupalContext()
     {
-        return $this->getEnvironment()->getContext('Drupal\DrupalExtension\Context\DrupalContext');
+        return $this->getEnvironment()->getContext(self::DRUPAL_EXTENSION_CONTEXT_NAMESPACE . '\DrupalContext');
     }
 
     /**
      * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *   When context is not specified in "config.yml".
+     *
+     * @return \Drupal\DrupalExtension\Context\MessageContext
+     */
+    public function getMessageContext()
+    {
+        return $this->getEnvironment()->getContext(self::DRUPAL_EXTENSION_CONTEXT_NAMESPACE . '\MessageContext');
+    }
+
+    /**
+     * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
      *
      * @return PropeopleContext
      */
@@ -184,5 +200,77 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     public function getFilesUrl()
     {
         return $this->getBaseUrl() . '/sites/default/files';
+    }
+
+    /**
+     * Try to find an element by different selectors.
+     *
+     * In this method was not used the "$this->getMinkContext()->getRegion($locator);",
+     * because it can throw an exception, when region was not defined. If this happens,
+     * we'll try to use the $locator as CSS selector.
+     *
+     * @param array $selectors
+     *   Selector types. E.g. "region", "css", "xpath" etc.
+     * @param string $locator
+     *   Locator for selector. Can be passed the region name or CSS selector.
+     *
+     * @return NodeElement|null
+     */
+    public function findElementBySelectors(array $selectors, $locator)
+    {
+        $page = $this->getWorkingElement();
+        $regions = $this->getDrupalParameter('region_map');
+        $element = null;
+
+        foreach ($selectors as $type) {
+            $css = $locator;
+
+            if ($type == 'region' && empty($regions[$locator])) {
+                $type = 'css';
+                $css = $locator;
+            }
+
+            $element = $page->find($type, $css);
+
+            if ($element) {
+                break;
+            }
+        }
+
+        return $element;
+    }
+
+    /**
+     * @param Session $session
+     *
+     * @return DocumentElement|NodeElement
+     */
+    public function getWorkingElement(Session $session = null)
+    {
+        if ($this->workingElement) {
+            return $this->workingElement;
+        }
+
+        $session = $session ?: $this->getSession();
+
+        return $session->getPage();
+    }
+
+    /**
+     * @param NodeElement $element
+     */
+    public function setWorkingElement(NodeElement $element)
+    {
+        $this->workingElement = $element;
+    }
+
+    public function unsetWorkingElement()
+    {
+        $this->workingElement = null;
+    }
+
+    public function unTrailingSlashIt($url)
+    {
+        return trim($url, '/');
     }
 }

@@ -18,7 +18,10 @@ use Behat\Behat\Snippet\Snippet;
 class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingContext
 {
     const PARSE_STRING = '(.+?)';
-    private $mailAccountStrings = null;
+
+    private $mailAccountStrings;
+    private $waitForRedirect;
+    private $startUrl = '';
 
     /**
      * @param callable $mail_account_strings
@@ -26,6 +29,8 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
      *   The value of each key should be a string with placeholder that will replaced with user
      *   login and password from an account. In testing, placeholders will be replaced by regular
      *   expressions for parse the message that was sent.
+     * @param int $wait_for_redirect
+     *   The time to wait for page opening.
      *
      * @see loginWithUserCredentialsThatWasSentViaEmail()
      *
@@ -48,9 +53,10 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
      * }
      * @code
      */
-    public function __construct($mail_account_strings = null)
+    public function __construct($mail_account_strings = null, $wait_for_redirect = null)
     {
         $this->mailAccountStrings = $mail_account_strings;
+        $this->waitForRedirect = $wait_for_redirect ?: 15;
     }
 
     /**
@@ -79,7 +85,7 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
      */
     public function iShouldSeeTheThumbnail()
     {
-        $page = $this->getSession()->getPage();
+        $page = $this->getWorkingElement();
         $thumb = false;
 
         foreach (array('media-thumbnail', 'image-preview') as $classname) {
@@ -106,11 +112,11 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
     /**
      * Check that the page have no error messages and fields - error classes.
      *
-     * @Then /^I should see no errors$/
+     * @Then /^(?:|I )should see no errors$/
      */
     public function iShouldSeeNoErrors()
     {
-        $page = $this->getSession()->getPage();
+        $page = $this->getWorkingElement();
         $errors = $page->find('css', $this->getDrupalSelector('error_message_selector'));
 
         // Some modules are inserted an empty container for errors before
@@ -166,11 +172,33 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
      */
     public function pressElement($selector)
     {
-        $element = $this->getSession()->getPage()->find('css', $selector);
+        $page = $this->getWorkingElement();
+        $element = $page->find('css', $selector);
 
         if (!$element) {
-            $this->throwNoSuchElementException($selector);
+            $element = $page->findButton($selector);
         }
+
+        $this->throwNoSuchElementException($selector, $element);
+        $this->unsetWorkingElement();
+        $element->press();
+    }
+
+    /**
+     * @param string $text
+     *   Text to search in region (block).
+     * @param string $selector
+     *   CSS selector or region name.
+     *
+     * @Given /^(?:|I )press on element with text "([^"]*)" in "([^"]*)"(?:| region)$/
+     */
+    public function pressElementByText($text, $selector)
+    {
+        $region = $this->findElementBySelectors(array('region'), $selector);
+        $this->throwNoSuchElementException($selector, $region);
+
+        $element = $region->find('xpath', "//*[text()[contains(., '$text')]]");
+        $this->throwNoSuchElementException($text, $element);
 
         $element->press();
     }
@@ -215,7 +243,7 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
             throw new \UnexpectedValueException('The value of "%s" field is empty.', $user_field);
         }
 
-        $this->getSession()->getPage()->fillField($field, $value);
+        $this->getWorkingElement()->fillField($field, $value);
     }
 
     /**
@@ -259,14 +287,13 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
             ));
         }
 
-        $this->getSession()->getPage()->fillField($field, $value);
+        $page = $this->getWorkingElement();
+
+        $page->fillField($field, $value);
         $this->waitUntilAjaxIsFinished();
 
-        $autocomplete = $this->getSession()->getPage()->findById('autocomplete');
-
-        if (!$autocomplete) {
-            $this->throwNoSuchElementException('#autocomplete');
-        }
+        $autocomplete = $page->findById('autocomplete');
+        $this->throwNoSuchElementException('#autocomplete', $autocomplete);
 
         $options = $autocomplete->findAll('css', 'li');
 
@@ -375,18 +402,76 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
      *
      * @throws \WebDriver\Exception\NoSuchElement
      *   When radio button was not found.
+     * @throws \Exception
      *
+     * @javascript
      * @Given /^(?:|I )check the "([^"]*)" radio button$/
      */
     public function radioAction($selector)
     {
-        $field = $this->getSession()->getPage()->findField($selector);
+        $page = $this->getWorkingElement();
+        $field = $page->findField($selector);
 
-        if (!$field) {
-            $this->throwNoSuchElementException($selector);
+        if (!$field || !$field->isVisible()) {
+            /* @var \Behat\Mink\Element\NodeElement $field */
+            foreach ($page->findAll('xpath', "//label[contains(text(), '$selector')]") as $field) {
+                if ($field->isVisible()) {
+                    $element_id = $field->getAttribute('for');
+
+                    if (!$element_id || !$page->findById($element_id)) {
+                        throw new \Exception(
+                            'The label of a field has no "for" attribute or an
+                            element cannot be found by value from that attribute.'
+                        );
+                    } else {
+                        $field->click();
+                    }
+
+                    return;
+                }
+            }
         }
 
+        $this->throwNoSuchElementException($selector, $field);
         $field->selectOption($field->getAttribute('value'));
+    }
+
+    /**
+     * @param string $field
+     * @param string $value
+     *
+     * @When /^(?:|I )fill "([^"]*)" with "([^"]*)"$/
+     */
+    public function fillField($field, $value)
+    {
+        $this->getWorkingElement()->fillField($field, $value);
+    }
+
+    /**
+     * @param TableNode $fields
+     *   | Field locator | Value |
+     *
+     * @When /^(?:|I )fill the following:$/
+     */
+    public function fillFields(TableNode $fields)
+    {
+        foreach ($fields->getRowsHash() as $field => $value) {
+            $this->fillField($field, $value);
+        }
+    }
+
+    /**
+     * @param string $selector
+     *   CSS selector or region name.
+     *
+     * @Then /^(?:|I )work with elements in "([^"]*)"(?:| region)$/
+     */
+    public function workWithElementsInRegion($selector)
+    {
+        $region = $this->findElementBySelectors(array('region'), $selector);
+
+        $this->throwNoSuchElementException($selector, $region);
+        $this->setWorkingElement($region);
     }
 
     /**
@@ -475,9 +560,8 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
                 }
 
                 if (!empty($matches['username']) && !empty($matches['password'])) {
-                    $session = $this->getSession();
-                    $session->visit($this->locatePath('/user/login'));
-                    $page = $session->getPage();
+                    $this->getSession()->visit($this->locatePath('/user/login'));
+                    $page = $this->getWorkingElement();
 
                     foreach ($matches as $name => $credential) {
                         $page->fillField($this->getDrupalText($name . '_field'), $credential);
@@ -486,11 +570,7 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
                     $button_text = $this->getDrupalText('log_in');
                     $submit = $page->findButton($button_text);
 
-                    if (!$submit) {
-                        $this->throwNoSuchElementException(sprintf('%s text', $button_text));
-                    }
-
-                    // Log in.
+                    $this->throwNoSuchElementException(sprintf('%s text', $button_text), $submit);
                     $submit->click();
 
                     if (!$this->loggedIn()) {
@@ -512,5 +592,47 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
                 'Failed to login because email does not contain user credentials or they are was not parsed correctly.'
             );
         }
+    }
+
+    /**
+     * @BeforeStep @redirect
+     */
+    public function beforeFollowRedirect()
+    {
+        $this->startUrl = $this->unTrailingSlashIt($this->getSession()->getCurrentUrl());
+    }
+
+    /**
+     * @param string $page
+     *   Expected page URL.
+     *
+     * @throws \Exception
+     * @throws \OverflowException
+     *
+     * @redirect
+     * @Then /^(?:|I )should be redirected(?:| on "([^"]*)")$/
+     */
+    public function followRedirect($page = null)
+    {
+        $seconds = 0;
+
+        while ($this->waitForRedirect >= $seconds++) {
+            $url = $this->unTrailingSlashIt($this->getSession()->getCurrentUrl());
+            $this->waitSeconds(1);
+
+            if ($url != $this->startUrl) {
+                if (isset($page)) {
+                    $page = $this->unTrailingSlashIt($page);
+
+                    if (!in_array($url, array($page, $this->getMinkParameter('base_url') . "/$page"))) {
+                        continue;
+                    }
+                }
+
+                return;
+            }
+        }
+
+        throw new \OverflowException('The waiting time is over.');
     }
 }

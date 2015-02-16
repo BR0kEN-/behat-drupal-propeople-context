@@ -6,6 +6,7 @@ default:
         - Behat\Drupal\Propeople\PropeopleContext: ~
         - Drupal\DrupalExtension\Context\MinkContext: ~
         - Drupal\DrupalExtension\Context\DrupalContext: ~
+        - Drupal\DrupalExtension\Context\MessageContext: ~
   extensions:
     Behat\MinkExtension:
       goutte: ~
