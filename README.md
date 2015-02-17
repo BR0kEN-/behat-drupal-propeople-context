@@ -1,6 +1,8 @@
 # Behat context by Propeople
 
-The Propeople Drupal Context provide a flexible methods for testing websites, running on Drupal 7. The contexts in this repository extend the contexts of [DrupalExtension](https://github.com/jhedstrom/drupalextension).
+The Propeople Drupal Context provide a flexible methods for testing websites,
+running on Drupal 7. The contexts in this repository extend the contexts of
+[DrupalExtension](https://github.com/jhedstrom/drupalextension).
 
 [![Build Status](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/badges/build.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/build-status/master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/BR0kEN-/behat-drupal-propeople-context/?branch=master)
@@ -18,9 +20,10 @@ The Propeople Drupal Context provide a flexible methods for testing websites, ru
 
 - Clone the `behat` folder into your project
 - Configure the `behat.yml`
-- Read the [documentation](behat/README.md) about creating the features
+- Read the [documentation](docs/README.md) about creating the features
 
 ## We are using
+
 - [PSR-0](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md) for autoloading
 - [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) for code style
 

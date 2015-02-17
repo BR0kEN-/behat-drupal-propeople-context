@@ -7,12 +7,12 @@ Each `*.feature` file should start from heading:
 Feature: Example
 ```
 
-The files for testing (images, documents, videos etc.) should be stored in [resources](resources) folder.
+The files for testing (images, documents, videos etc.) should be stored in [/behat/resources](resources) folder.
 
 ## Examples
 
-- [Upload an image (Media module)](/docs/UPLOAD_MEDIA.md)
-- [Testing emails](/docs/EMAILS.md)
+- [Upload an image (Media module)](UPLOAD_MEDIA.md)
+- [Testing emails](EMAILS.md)
 
 ## Steps
 

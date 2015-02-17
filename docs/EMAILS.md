@@ -3,15 +3,14 @@
 Scenarios, which will use steps for testing emails, should be tagged with `@emails` tag.
 
 ```gherkin
-Feature: Testing emails
-  @emails
-  Scenario: Create an account
-    Given I am logged in as a user with the "administrator" role
-    Then I am at "user/create"
-    And I press the "Create" button
-    Then I should see no errors
-    And check that email to "test@propeople.com.ua" was sent
-    And login with user credentials that was sent via email
+@emails
+Scenario: Create an account
+  Given I am logged in as a user with the "administrator" role
+  Then I am at "user/create"
+  And I press the "Create" button
+  Then I should see no errors
+  And check that email to "test@propeople.com.ua" was sent
+  And login with user credentials that was sent via email
 ```
 
 **IMPORTANT**: For login with credentials that have been sent via email you should correctly configure your Behat.
@@ -23,8 +22,8 @@ default:
     default:
       contexts:
         - FeatureContext: ~
-        - Behat\Drupal\Propeople\PropeopleContext:
-            mail_account_strings: mail_account_strings
+        - Behat\Drupal\Propeople\Contexts\Email\EmailContext:
+            mail_account_strings: _mail_account_strings
         - Drupal\DrupalExtension\Context\MinkContext: ~
         - Drupal\DrupalExtension\Context\DrupalContext: ~
   extensions:
