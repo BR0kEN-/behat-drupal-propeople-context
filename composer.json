@@ -15,5 +15,8 @@
     "psr-0": {
       "Behat\\Drupal": "src/"
     }
+  },
+  "scripts": {
+    "Behat\\Drupal\\Propeople\\Generators\\ProjectInitializer::composerPostInstallCommand"
   }
 }
