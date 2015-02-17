@@ -17,6 +17,8 @@
     }
   },
   "scripts": {
-    "Behat\\Drupal\\Propeople\\Generators\\ProjectInitializer::composerPostInstallCommand"
+    "post-install-cmd": [
+      "Behat\\Drupal\\Propeople\\Generators\\ProjectInitializer::composerPostInstallCommand"
+    ]
   }
 }
