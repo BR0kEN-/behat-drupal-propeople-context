@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# @author Sergey Bondarenko
+
 readonly bash_needed_version=3
 readonly bash_major_version=${BASH_VERSION%%[^0-9]*}
 
