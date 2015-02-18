@@ -18,8 +18,8 @@
   },
   "scripts": {
     "post-install-cmd": [
-      "if [ -z `which behat` ]; then sudo ln -s `pwd`/vendor/bin/behat /bin/behat; fi",
-      "if [ -z `which bdpc` ]; then sudo ln -s `pwd`/vendor/behat/drupal-propeople-context/scripts/bdpc /bin/bdpc; fi"
+      "if [ -z `which behat` ]; then sudo ln -s `pwd`/vendor/bin/behat /usr/bin/behat; fi",
+      "if [ -z `which bdpc` ]; then sudo ln -s `pwd`/vendor/behat/drupal-propeople-context/scripts/bdpc /usr/bin/bdpc; fi"
     ]
   }
 }

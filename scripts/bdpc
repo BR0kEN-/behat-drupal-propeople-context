@@ -3,7 +3,7 @@
 readonly bash_needed_version=3
 readonly bash_major_version=${BASH_VERSION%%[^0-9]*}
 
-if [ $(( ${bash_major_version} < ${bash_needed_version} )) -eq 1 ]; then
+if [ "${bash_major_version}" -lt "${bash_needed_version}" ]; then
     status_message "Sorry, but bash version should be more or equal of ${bash_needed_version}!" error
 fi
 
@@ -140,6 +140,12 @@ for i in ${@}; do
 done
 
 # Execute the commands.
-if [ -f "${0%/*}/${1}" ]; then
-    . ${0%/*}/${1}
+commands_path=${0}
+
+if [ ! -f "${commands_path%/*}/commands/${1}" ]; then
+    commands_path=$(readlink ${commands_path})
+fi
+
+if [ -f "${commands_path%/*}/commands/${1}" ]; then
+    . ${commands_path%/*}/commands/${1}
 fi
