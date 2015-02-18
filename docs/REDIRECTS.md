@@ -21,3 +21,18 @@ Scenario: Form submission
   Then I should see text matching "Testfirstname"
 ```
 
+**IMPORTANT**: For testing redirects you should correctly configure your Behat.
+
+Example of `config.yml`:
+```yml
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext: ~
+#        - Behat\Drupal\Propeople\Redirect\RedirectContext: ~
+#            wait_for_redirect: 30
+        - Drupal\DrupalExtension\Context\MinkContext: ~
+        - Drupal\DrupalExtension\Context\DrupalContext: ~
+  extensions:
+```

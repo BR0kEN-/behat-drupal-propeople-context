@@ -164,6 +164,8 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
     /**
      * Use the current user data for filling fields.
      *
+     * @todo Improve logic of the method.
+     *
      * @param string $field
      *   The name of field to fill in.
      * @param string $user_field

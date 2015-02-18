@@ -7,12 +7,18 @@ Each `*.feature` file should start from heading:
 Feature: Example
 ```
 
-The files for testing (images, documents, videos etc.) should be stored in [/behat/resources](resources) folder.
+The files for testing (images, documents, videos etc.) should be stored in [resources](/behat/resources) folder.
 
 ## Examples
 
 - [Upload an image (Media module)](UPLOAD_MEDIA.md)
 - [Testing emails](EMAILS.md)
+
+## Raw Methods
+
+In your `FeatureContext` you can get another contexts and use their steps. See
+on [RawPropeopleContext](/src/Behat/Drupal/Propeople/RawPropeopleContext.php)
+for more information.
 
 ## Steps
 
@@ -37,10 +43,12 @@ Given I should use the "1280x800" screen resolution
 ```
 
 ```gherkin
+## The text, label, name or CSS selector can be used as selector.
 When I press ".link" element
 ```
 
 ```gherkin
+## Unstable method.
 Then I fill in "field_company[und][0]" with value of field "user_company" of current user
 ```
 
@@ -60,12 +68,64 @@ Given I [un]check the boxes:
 ```
 
 ```gherkin
+## - The button can be found by ID, name or CSS selector.
+## - The label of radio button can be specified inaccurately.
+## - If element has more than one label and one of them is hidden, then
+##   will used only visible, if exist.
+## - If trying to get the field by label, then it must have the "for" attribute
+##   and element with ID, specified in that attribute, must exist.
 Given I check the "Show" radio button
 ```
 
 ```gherkin
 Then I wait 60 seconds
 ```
+
+```gherkin
+## Region can be found by CSS selector or name from "region_map" parameter
+## of "behat.yml".
+Then I work with elements in "header" region
+```
+
+```gherkin
+## This method must be used instead of 'I fill in "field" with "value"'.
+Then I fill "last_name" with "Bondarenko"
+```
+
+```gherkin
+## This method must be used instead of 'I fill in the following:'.
+Then I fill the following:
+  | first_name | Sergey    |
+  | last_name | Bondarenko |
+```
+
+```gherkin
+## - Region can be found by CSS selector or name from "region_map" parameter
+##   of "behat.yml".
+## - The text can be specified inaccurately, but you should remember that in
+##   region can be more than one element with specified text and will pressed
+##   the first only.
+Then I press on element with text "Account" in "footer" region
+```
+
+### Redirect context
+
+```gherkin
+## You should use @redirects tag for scenario with this step.
+## Waits for only one redirect and goes to the next step.
+Then I should be redirected
+```
+
+```gherkin
+## You should use @redirects tag for scenario with this step.
+## Waits as long as URL of the page will not be the same as specified.
+## - The URL can be relative or absolute.
+## - By default, the waiting timeout is set to 15 seconds, but you can change
+##   this in "behat.yml".
+Then I should be redirected on "https://example.com"
+```
+
+### Email context
 
 ```gherkin
 ## You should use @emails tag for scenario with this step.

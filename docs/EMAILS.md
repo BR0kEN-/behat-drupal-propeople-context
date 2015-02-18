@@ -22,7 +22,7 @@ default:
     default:
       contexts:
         - FeatureContext: ~
-        - Behat\Drupal\Propeople\Contexts\Email\EmailContext:
+        - Behat\Drupal\Propeople\Email\EmailContext:
             mail_account_strings: _mail_account_strings
         - Drupal\DrupalExtension\Context\MinkContext: ~
         - Drupal\DrupalExtension\Context\DrupalContext: ~
