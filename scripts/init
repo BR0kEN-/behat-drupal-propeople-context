@@ -34,7 +34,7 @@ fi
 
 project_dir=${project_dir%/}
 
-if ! grep -Fxq "DRUPAL_ROOT" ${project_dir}/index.php; then
+if ${project_exist} && ! grep -Fxq "DRUPAL_ROOT" ${project_dir}/index.php; then
     project_exist=false
 fi
 
