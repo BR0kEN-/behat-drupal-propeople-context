@@ -2,7 +2,7 @@
 /**
  * @author Sergey Bondarenko, <broken@propeople.com.ua>
  */
-namespace Behat\Drupal\Propeople\Contexts;
+namespace Behat\Drupal\Propeople;
 
 // Contexts.
 use Behat\Behat\Context\SnippetAcceptingContext;

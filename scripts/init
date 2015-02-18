@@ -1,0 +1,48 @@
+#!/bin/bash
+
+if [ ! -n "${url}" ]; then
+    status_message "You need to specify the URL of a project using the \"--url=http://example.com\" parameter." error
+fi
+
+# The symlink for "behat" created by "post-install-cmd" via Composer.
+config=$(readlink `which behat`)
+# Remove the "/bin/behat" from the end of executable file. Now the path
+# looks like "path/to/installation/vendor"
+config=${config%/*/*}/vendor/behat/drupal-propeople-context/behat
+
+if [ ! -d "${config}" ]; then
+    status_message "Something went wrong. Try to reinstall the package. :(" error
+fi
+
+cp -r ${config} ./
+rm behat/resources/README.md
+
+project_dir=`pwd`/
+project_exist=false
+
+if [ -f "${project_dir}index.php" ]; then
+    project_exist=true
+else
+    if [ -n "${dir}" ]; then
+        project_dir+="${dir}/"
+
+        if [ -f "${project_dir}/index.php" ]; then
+            project_exist=true
+        fi
+    fi
+fi
+
+project_dir=${project_dir%/}
+
+if ! grep -Fxq "DRUPAL_ROOT" ${project_dir}/index.php; then
+    project_exist=false
+fi
+
+if ${project_exist}; then
+    replace_in_file '<DRUPAL_ROOT>' ${project_dir} behat/behat.yml
+    replace_in_file '<BASE_URL>' ${url} behat/behat.yml
+
+    status_message "Behat configuration was created sucessfully!"
+else
+    status_message "The Drupal was not installed here: ${project_dir}" error
+fi

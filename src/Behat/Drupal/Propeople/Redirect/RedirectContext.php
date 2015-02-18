@@ -2,7 +2,7 @@
 /**
  * @author Sergey Bondarenko, <broken@propeople.com.ua>
  */
-namespace Behat\Drupal\Propeople\Contexts\Redirect;
+namespace Behat\Drupal\Propeople\Redirect;
 
 class RedirectContext extends RawRedirectContext
 {

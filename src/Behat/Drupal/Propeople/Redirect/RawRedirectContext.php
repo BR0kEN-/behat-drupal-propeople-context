@@ -2,10 +2,10 @@
 /**
  * @author Sergey Bondarenko, <broken@propeople.com.ua>
  */
-namespace Behat\Drupal\Propeople\Contexts\Redirect;
+namespace Behat\Drupal\Propeople\Redirect;
 
 // Contexts.
-use Behat\Drupal\Propeople\Contexts\RawPropeopleContext;
+use Behat\Drupal\Propeople\RawPropeopleContext;
 
 class RawRedirectContext extends RawPropeopleContext
 {

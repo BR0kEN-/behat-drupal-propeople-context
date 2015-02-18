@@ -6,7 +6,7 @@
 
 // Contexts.
 use Behat\Behat\Context\SnippetAcceptingContext;
-use Behat\Drupal\Propeople\Contexts\RawPropeopleContext;
+use Behat\Drupal\Propeople\RawPropeopleContext;
 
 // Helpers.
 use Behat\Gherkin\Node\PyStringNode;

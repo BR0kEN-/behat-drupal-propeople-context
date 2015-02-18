@@ -2,10 +2,10 @@
 /**
  * @author Sergey Bondarenko, <broken@propeople.com.ua>
  */
-namespace Behat\Drupal\Propeople\Contexts\Email;
+namespace Behat\Drupal\Propeople\Email;
 
 // Contexts.
-use Behat\Drupal\Propeople\Contexts\RawPropeopleContext;
+use Behat\Drupal\Propeople\RawPropeopleContext;
 
 class RawEmailContext extends RawPropeopleContext
 {
