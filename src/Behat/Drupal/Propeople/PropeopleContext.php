@@ -47,9 +47,11 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
         $thumb = false;
 
         foreach (array('media-thumbnail', 'image-preview') as $classname) {
-            if (!$thumb) {
-                $thumb = $page->find('css', ".$classname img");
+            if ($thumb) {
+                break;
             }
+
+            $thumb = $page->find('css', ".$classname img");
         }
 
         if (!$thumb) {
@@ -57,7 +59,7 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
         }
 
         $file = explode('?', $thumb->getAttribute('src'));
-        $file = $this->getFilesUrl() . '/' . reset($file);
+        $file = reset($file);
 
         $curl = new CurlService();
         list(, $info) = $curl->execute('GET', $file);
