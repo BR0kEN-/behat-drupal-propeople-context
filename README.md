@@ -18,14 +18,17 @@ running on Drupal 7. The contexts in this repository extend the contexts of
 
 ## Usage
 
-- Clone the `behat` folder into your project
-- Configure the `behat.yml`
-- Read the [documentation](docs/README.md) about creating the features
+- Navigate to folder with your project.
+- Execute the `bdpc init --url=http://project.loc`. You can use additional
+  parameter `dir` if the Drupal installation located above current folder.
+  For example `bdpc init --url=http://project.loc --dir=docroot`.
+- Configure the `behat.yml` if needed.
+- Read the [documentation](docs/README.md) about creating the features.
 
 ## We are using
 
-- [PSR-0](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md) for autoloading
-- [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) for code style
+- [PSR-0](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md) for autoloading.
+- [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) for code style.
 
 ## Author
 
