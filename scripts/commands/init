@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ -d "./behat" ]; then
+    status_message "Your Behat directory is already configured." warning
+    exit
+fi
+
 if [ ! -n "${url}" ]; then
     status_message "You need to specify the URL of a project using the \"--url=http://example.com\" parameter." error
 fi
