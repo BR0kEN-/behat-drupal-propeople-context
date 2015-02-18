@@ -61,7 +61,9 @@ class RawEmailContext extends RawPropeopleContext
               ->execute()
               ->fetchField();
 
-            $this->messages = unserialize($this->messages);
+            if (!empty($this->messages)) {
+                $this->messages = unserialize($this->messages);
+            }
         }
 
         if (!$this->messages) {
