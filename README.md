@@ -14,7 +14,7 @@ running on Drupal 7. The contexts in this repository extend the contexts of
 ## Installation
 
 - Install [Composer](https://getcomposer.org/doc/00-intro.md)
-- Execute the `composer require behat/drupal-propeople-context='~1.0'`
+- Execute the `sudo composer require behat/drupal-propeople-context='~1.0'`
 
 ## Usage
 
