@@ -8,7 +8,7 @@ fi
 config=$(readlink `which behat`)
 # Remove the "/bin/behat" from the end of executable file. Now the path
 # looks like "path/to/installation/vendor"
-config=${config%/*/*}/vendor/behat/drupal-propeople-context/behat
+config=${config%/*/*}/behat/drupal-propeople-context/behat
 
 if [ ! -d "${config}" ]; then
     status_message "Something went wrong. Try to reinstall the package. :(" error
@@ -34,7 +34,7 @@ fi
 
 project_dir=${project_dir%/}
 
-if ${project_exist} && ! grep -Fxq "DRUPAL_ROOT" ${project_dir}/index.php; then
+if ${project_exist} && ! grep -Fq 'DRUPAL_ROOT' ${project_dir}/index.php; then
     project_exist=false
 fi
 
