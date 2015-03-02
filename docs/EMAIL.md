@@ -1,9 +1,9 @@
 ### Testing sending letters
 
-Scenarios, which will use steps for testing emails, should be tagged with `@emails` tag.
+Scenarios, which will use steps for testing emails, should be tagged with `@email` tag.
 
 ```gherkin
-@emails
+@email
 Scenario: Create an account
   Given I am logged in as a user with the "administrator" role
   Then I am at "user/create"
@@ -15,13 +15,14 @@ Scenario: Create an account
 
 **IMPORTANT**: For login with credentials that have been sent via email you should correctly configure your Behat.
 
-Example of `config.yml`:
+Example of `behat.yml`:
 ```yml
 default:
   suites:
     default:
       contexts:
         - FeatureContext: ~
+        - Behat\Drupal\Propeople\PropeopleContext: ~
         - Behat\Drupal\Propeople\Email\EmailContext:
             mail_account_strings: _mail_account_strings
         - Drupal\DrupalExtension\Context\MinkContext: ~

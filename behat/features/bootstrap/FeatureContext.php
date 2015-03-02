@@ -5,7 +5,6 @@
  */
 
 // Contexts.
-use Behat\Behat\Context\SnippetAcceptingContext;
 use Behat\Drupal\Propeople\RawPropeopleContext;
 
 // Helpers.
@@ -15,7 +14,7 @@ use Behat\Gherkin\Node\TableNode;
 /**
  * Class FeatureContext.
  */
-class FeatureContext extends RawPropeopleContext implements SnippetAcceptingContext {
+class FeatureContext extends RawPropeopleContext {
   /**
    * Initializes context.
    *

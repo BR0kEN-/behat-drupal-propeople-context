@@ -11,8 +11,9 @@ The files for testing (images, documents, videos etc.) should be stored in [reso
 
 ## Examples
 
-- [Upload an image (Media module)](UPLOAD_MEDIA.md)
-- [Testing emails](EMAILS.md)
+- [Upload an image (Media module)](MEDIA.md)
+- [Testing emails](EMAIL.md)
+- [Testing WYSIWYG](WYSIWYG.md)
 
 ## Raw Methods
 
@@ -110,14 +111,14 @@ Then I press on element with text "Account" in "footer" region
 
 ### Redirect context
 
+All scenarios, used steps from this context, should be tagged with `@redirect` tag.
+
 ```gherkin
-## You should use @redirects tag for scenario with this step.
 ## Waits for only one redirect and goes to the next step.
 Then I should be redirected
 ```
 
 ```gherkin
-## You should use @redirects tag for scenario with this step.
 ## Waits as long as URL of the page will not be the same as specified.
 ## - The URL can be relative or absolute.
 ## - By default, the waiting timeout is set to 15 seconds, but you can change
@@ -127,19 +128,57 @@ Then I should be redirected on "https://example.com"
 
 ### Email context
 
+All scenarios, used steps from this context, should be tagged with `@email` tag.
+
 ```gherkin
-## You should use @emails tag for scenario with this step.
 Then I check that email to "test@propeople.com.ua" was sent
 ```
 
 ```gherkin
-## You should use @emails tag for scenario with this step.
 Then I check that email body contains the "Congratulations" text
 ```
 
 ```gherkin
 ## To use this step you should correctly configure your Behat.
 Then I login with user credentials that was sent via email
+```
+
+### Drush context
+
+All scenarios, used steps from this context, should be tagged with `@drush` tag.
+
+```gherkin
+Then I login with one time link
+```
+
+### WYSIWYG context
+
+All scenarios, used steps from this context, should be tagged with `@wysiwyg`
+tag. Also, any WYSIWYG editor can be found by usual selector of form field.
+
+**Note**: only CKEditor supported for now, but, in future we're planing to provide TinyMCE
+support.
+
+```gherkin
+## If this step was used, then you no need to specify selector for next steps
+## from this context while working with only one editor.
+Given I work with "Presentation" WYSIWYG editor
+```
+
+```gherkin
+Then I fill "<strong>Text</strong>" in "Presentation" WYSIWYG editor
+```
+
+```gherkin
+Then I type "<p>additional text</p>" in "Presentation" WYSIWYG editor
+```
+
+```gherkin
+Then I should see "Text" in "Presentation" WYSIWYG editor
+```
+
+```gherkin
+Then I should not see "vulnerability" in "Presentation" WYSIWYG editor
 ```
 
 To see all, available in your system, steps execute the `behat -dl`.

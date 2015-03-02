@@ -4,6 +4,8 @@ default:
       contexts:
         - FeatureContext: ~
         - Behat\Drupal\Propeople\PropeopleContext: ~
+#        - Behat\Drupal\Propeople\Drush\DrushContext: ~
+#        - Behat\Drupal\Propeople\Wysiwyg\WysiwygContext: ~
 #        - Behat\Drupal\Propeople\Email\EmailContext:
 #            mail_account_strings: _mail_account_strings
 #        - Behat\Drupal\Propeople\Redirect\RedirectContext: ~
@@ -20,6 +22,8 @@ default:
     Drupal\DrupalExtension:
       blackbox: ~
       api_driver: drupal
+      drush:
+        root: <DRUPAL_ROOT>
       drupal:
         drupal_root: <DRUPAL_ROOT>
       text:

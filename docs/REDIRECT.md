@@ -1,10 +1,10 @@
 ### Check redirects in testing
 
 Scenarios, which will use steps for checking the redirect, should be tagged
-with `@redirects` tag.
+with `@redirect` tag.
 
 ```gherkin
-@redirects
+@redirect
 Scenario: Form submission
   And I fill "First name" with "Testfirstname"
   When I press "Submit" element
@@ -23,15 +23,16 @@ Scenario: Form submission
 
 **IMPORTANT**: For testing redirects you should correctly configure your Behat.
 
-Example of `config.yml`:
+Example of `behat.yml`:
 ```yml
 default:
   suites:
     default:
       contexts:
         - FeatureContext: ~
-#        - Behat\Drupal\Propeople\Redirect\RedirectContext: ~
-#            wait_for_redirect: 30
+        - Behat\Drupal\Propeople\PropeopleContext: ~
+        - Behat\Drupal\Propeople\Redirect\RedirectContext: ~
+            wait_for_redirect: 30
         - Drupal\DrupalExtension\Context\MinkContext: ~
         - Drupal\DrupalExtension\Context\DrupalContext: ~
   extensions:

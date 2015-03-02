@@ -16,10 +16,5 @@
       "Behat\\Drupal": "src/"
     }
   },
-  "scripts": {
-    "post-install-cmd": [
-      "if [ -z `which behat` ]; then ln -s `pwd`/vendor/bin/behat /usr/bin/behat; fi",
-      "if [ -z `which bdpc` ]; then ln -s `pwd`/vendor/behat/drupal-propeople-context/scripts/bdpc /usr/bin/bdpc; fi"
-    ]
-  }
+  "bin": ["scripts/behat"]
 }

@@ -4,9 +4,6 @@
  */
 namespace Behat\Drupal\Propeople;
 
-// Contexts.
-use Behat\Behat\Context\SnippetAcceptingContext;
-
 // Exceptions.
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
@@ -15,25 +12,18 @@ use WebDriver\Service\CurlService;
 use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Snippet\Snippet;
 
-class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingContext
+class PropeopleContext extends RawPropeopleContext
 {
     /**
      * @param string $name
      *   An iframe name (null for switching back).
      *
      * @Given /^(?:|I )switch to an iframe "([^"]*)"$/
+     * @Then /^(?:|I )switch back from an iframe$/
      */
     public function iSwitchToAnIframe($name = null)
     {
         $this->getSession()->switchToIFrame($name);
-    }
-
-    /**
-     * @Given /^(?:|I )switch back from an iframe$/
-     */
-    public function iSwitchBackFromAnIframe()
-    {
-        $this->iSwitchToAnIframe();
     }
 
     /**
@@ -354,7 +344,6 @@ class PropeopleContext extends RawPropeopleContext implements SnippetAcceptingCo
      *   When radio button was not found.
      * @throws \Exception
      *
-     * @javascript
      * @Given /^(?:|I )check the "([^"]*)" radio button$/
      */
     public function radioAction($selector)

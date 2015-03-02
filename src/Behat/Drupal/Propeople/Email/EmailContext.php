@@ -46,7 +46,7 @@ class EmailContext extends RawEmailContext
      * @param string $to
      *   Email address on that should have been sent a letter.
      *
-     * @emails
+     * @email
      * @Given /^(?:|I )check that email to "([^"]*)" was sent$/
      */
     public function checkThatEmailToWasSent($to)
@@ -62,7 +62,7 @@ class EmailContext extends RawEmailContext
      * @param string $text
      *   Text that need to be found in letter.
      *
-     * @emails
+     * @email
      * @Given /^(?:|I )check that email body contains the "([^"]*)" text$/
      */
     public function checkThatEmailBodyContainsTheText($text)
@@ -85,7 +85,7 @@ class EmailContext extends RawEmailContext
      * @throws \RuntimeException
      *   When credentials cannot be parsed or does not exist.
      *
-     * @emails
+     * @email
      * @Given /^(?:|I )login with user credentials that was sent via email$/
      */
     public function loginWithUserCredentialsThatWasSentViaEmail()

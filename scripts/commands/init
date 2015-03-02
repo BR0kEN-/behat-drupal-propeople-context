@@ -9,17 +9,11 @@ if [ ! -n "${url}" ]; then
     status_message "You need to specify the URL of a project using the \"--url=http://example.com\" parameter." error
 fi
 
-# The symlink for "behat" created by "post-install-cmd" via Composer.
-config=$(readlink `which behat`)
-# Remove the "/bin/behat" from the end of executable file. Now the path
-# looks like "path/to/installation/vendor"
-config=${config%/*/*}/behat/drupal-propeople-context/behat
-
-if [ ! -d "${config}" ]; then
+if [ ! -d "${package_dir}/behat" ]; then
     status_message "Something went wrong. Try to reinstall the package. :(" error
 fi
 
-cp -r ${config} ./
+cp -r ${package_dir}/behat ./
 rm behat/resources/README.md
 
 project_dir=`pwd`/

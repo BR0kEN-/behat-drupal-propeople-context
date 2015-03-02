@@ -131,23 +131,42 @@ for i in ${@}; do
     # string will have the following form: "name=value", and will be
     # splitted by "=" symbol.
     key_value=${i#--}
-    arg=${key_value%=*}
-    val=${key_value#*=}
 
-    if [ ${arg} == ${val} ]; then
-        declare "${arg}"=true
-    else
-        declare "${arg}"=${val}
+    if [ ${key_value} != ${i} ]; then
+        arg=${key_value%=*}
+        val=${key_value#*=}
+
+        if [ ${arg} == ${val} ]; then
+            declare "${arg}"=true
+        else
+            declare "${arg}"=${val}
+        fi
     fi
 done
 
 # Execute the commands.
 commands_path=${0}
+command="__init"
 
-if [ ! -f "${commands_path%/*}/commands/${1}" ]; then
+package_dir=$(readlink ${commands_path})
+# Remove the "/scripts/behat" from the end of executable file.
+package_dir=${package_dir%/*/*}
+
+# Override existing or add new commands for "bin/behat" by checking
+# CL parameters.
+for override in init; do
+    if [ -n "${!override}" ]; then
+        command=${override}
+        break
+    fi
+done
+
+# If file with command does not exist, then path, possible, can be symlink.
+if [ ! -f "${commands_path%/*}/commands/${command}" ]; then
     commands_path=$(readlink ${commands_path})
 fi
 
-if [ -f "${commands_path%/*}/commands/${1}" ]; then
-    . ${commands_path%/*}/commands/${1}
+# Execute the command if it has been defined.
+if [ -f "${commands_path%/*}/commands/${command}" ]; then
+    . ${commands_path%/*}/commands/${command}
 fi

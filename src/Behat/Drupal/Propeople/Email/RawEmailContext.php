@@ -13,7 +13,7 @@ class RawEmailContext extends RawPropeopleContext
     private $messages = array();
 
     /**
-     * @BeforeScenario @emails
+     * @BeforeScenario @email
      */
     public function initializeEmailTesting()
     {
@@ -23,14 +23,11 @@ class RawEmailContext extends RawPropeopleContext
           // Set the mail system for testing. It will store an emails in
           // "drupal_test_email_collector" Drupal variable instead of sending.
           'mail_system' => array('default-system' => 'TestingMailSystem'),
-          // Set to "FALSE", because the administration menu will not be rendered.
-          // https://www.drupal.org/node/2023625#comment-8607207
-          'admin_menu_cache_client' => false,
         ));
     }
 
     /**
-     * @AfterScenario @emails
+     * @AfterScenario @email
      */
     public function restoreEmailSubmissionSettings()
     {

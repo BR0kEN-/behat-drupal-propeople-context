@@ -19,7 +19,7 @@ class RedirectContext extends RawRedirectContext
     }
 
     /**
-     * @BeforeStep @redirects
+     * @BeforeStep @redirect
      */
     public function beforeShouldBeRedirected()
     {
@@ -33,7 +33,7 @@ class RedirectContext extends RawRedirectContext
      * @throws \Exception
      * @throws \OverflowException
      *
-     * @redirects
+     * @redirect
      * @Then /^(?:|I )should be redirected(?:| on "([^"]*)")$/
      */
     public function shouldBeRedirected($page = null)

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+params=''
+
+# Collect parameters for original "behat" binary.
+for i in ${@}; do
+    params+=" ${i}"
+done
+
+# Execute original binary.
+eval ${package_dir%/*}/behat/bin/behat ${params}
