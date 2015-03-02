@@ -144,6 +144,7 @@ done
 
 # Directory with Bash files.
 commands_path=${0}
+package_link=''
 # Package directory.
 package_dir=""
 # Command name ("behat" by default).
@@ -154,7 +155,8 @@ if [ -z "${command}" ]; then
 fi
 
 if [ -L "${commands_path}" ]; then
-    package_dir=$(readlink ${commands_path})
+    package_dir=`readlink ${commands_path}`
+    cd ${commands_path%/*}
 elif [ -f "${commands_path}" ]; then
     package_dir=${commands_path}
 fi

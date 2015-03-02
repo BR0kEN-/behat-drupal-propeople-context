@@ -31,6 +31,9 @@ running on Drupal 7. The contexts in this repository extend the contexts of
   },
   "config": {
     "bin-dir": "bin/"
+  },
+  "scripts": {
+    "post-install-cmd": "mv bin/bdpc bin/behat"
   }
 }
 ```
