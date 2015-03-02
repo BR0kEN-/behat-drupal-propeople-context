@@ -16,5 +16,8 @@
       "Behat\\Drupal": "src/"
     }
   },
-  "bin": ["scripts/behat"]
+  "config": {
+    "bin-dir": "bin/"
+  },
+  "bin": ["scripts/bdpc"]
 }
