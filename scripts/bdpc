@@ -9,8 +9,6 @@ if [ "${bash_major_version}" -lt "${bash_needed_version}" ]; then
     status_message "Sorry, but bash version should be more or equal of ${bash_needed_version}!" error
 fi
 
-y=false
-
 # Print message on the screen.
 #
 # @param string $1
@@ -144,25 +142,30 @@ for i in ${@}; do
     fi
 done
 
-# Execute the commands.
+# Directory with Bash files.
 commands_path=${0}
-command="__init"
+# Package directory.
+package_dir=""
+# Command name ("behat" by default).
+command=${1}
+
+if [ -z "${command}" ]; then
+    command="__init"
+fi
 
 if [ -L "${commands_path}" ]; then
     package_dir=$(readlink ${commands_path})
-else
+elif [ -f "${commands_path}" ]; then
     package_dir=${commands_path}
 fi
 
-# Remove the "/scripts/behat" from the end of executable file.
-package_dir=${package_dir%/*/*}
+package_dir=`cd ${package_dir%/*} && pwd`
+commands_path=${package_dir}/commands
 
-if [ ! -d "${package_dir}" ]; then
-    status_message "Cannot get the package directory." error
-fi
+# Remove the "/scripts" from the end of executable file.
+package_dir=${package_dir%/*}
 
-# Override existing or add new commands for "bin/behat" by checking
-# CL parameters.
+# Allow to run commands defined as parameters.
 for override in init; do
     if [ -n "${!override}" ]; then
         command=${override}
@@ -170,12 +173,11 @@ for override in init; do
     fi
 done
 
-# If file with command does not exist, then path, possible, can be symlink.
-if [ ! -f "${commands_path%/*}/commands/${command}" ]; then
-    commands_path=$(readlink ${commands_path})
+if [ ! -d "${package_dir}" ]; then
+    status_message "Cannot get the package directory." error
 fi
 
 # Execute the command if it has been defined.
-if [ -f "${commands_path%/*}/commands/${command}" ]; then
-    . ${commands_path%/*}/commands/${command}
+if [ -f "${commands_path}/${command}" ]; then
+    . ${commands_path}/${command}
 fi
