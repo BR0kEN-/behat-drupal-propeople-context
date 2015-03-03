@@ -43,7 +43,7 @@ running on Drupal 7. The contexts in this repository extend the contexts of
   parameter if the Drupal installation located above current folder.
   For example `bin/behat --init --url=http://project.loc --dir=docroot`.
 - Configure the `behat.yml` if needed.
-- Read the [documentation](docs/README.md) about creating the features.
+- Read the [documentation](docs) about creating the features.
 
 ## We are using
 
