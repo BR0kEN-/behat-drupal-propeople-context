@@ -124,6 +124,37 @@ replace_in_file()
     fi
 }
 
+# Retrieve an absolute path of symlink (recursively).
+#
+# @param string $symlink
+get_symlink_full_path()
+{
+    local link=${1}
+    local cd=${link}
+
+    while true; do
+        if [ -L "${link}" ]; then
+            cd=${link}
+            link=`readlink ${link}`
+        else
+            if [ -f "${cd}" ]; then
+                cd=${cd%/*}
+            fi
+
+            cd ${cd}
+
+            if [ -f "${link}" ]; then
+                link=${link%/*}
+            fi
+
+            cd ${link}
+
+            echo `pwd`
+            break
+        fi
+    done
+}
+
 for i in ${@}; do
     # Remove leading dashes from a parameter declaration. After that,
     # string will have the following form: "name=value", and will be
@@ -144,9 +175,6 @@ done
 
 # Directory with Bash files.
 commands_path=${0}
-package_link=''
-# Package directory.
-package_dir=""
 # Command name ("behat" by default).
 command=${1}
 
@@ -154,14 +182,7 @@ if [ -z "${command}" ]; then
     command="__init"
 fi
 
-if [ -L "${commands_path}" ]; then
-    package_dir=`readlink ${commands_path}`
-    cd ${commands_path%/*}
-elif [ -f "${commands_path}" ]; then
-    package_dir=${commands_path}
-fi
-
-package_dir=`cd ${package_dir%/*} && pwd`
+package_dir=`get_symlink_full_path ${commands_path}`
 commands_path=${package_dir}/commands
 
 # Remove the "/scripts" from the end of executable file.
