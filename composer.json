@@ -19,5 +19,8 @@
   "config": {
     "bin-dir": "bin/"
   },
+  "scripts": {
+    "post-install-cmd": "mv bin/bdpc bin/behat"
+  },
   "bin": ["scripts/bdpc"]
 }

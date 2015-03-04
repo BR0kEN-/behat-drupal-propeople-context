@@ -137,17 +137,13 @@ get_symlink_full_path()
             cd=${link}
             link=`readlink ${link}`
         else
-            if [ -f "${cd}" ]; then
-                cd=${cd%/*}
-            fi
+            for var in cd link; do
+                if [ -f "${!var}" ]; then
+                    declare "${var}"=${!var%/*}
+                fi
 
-            cd ${cd}
-
-            if [ -f "${link}" ]; then
-                link=${link%/*}
-            fi
-
-            cd ${link}
+                cd ${!var}
+            done
 
             echo `pwd`
             break
