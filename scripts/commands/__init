@@ -3,7 +3,7 @@
 behat_binary=${package_dir%/*}/behat/bin/behat
 
 if [ -f "${behat_binary}" ]; then
-    behat_binary ${@}
+    ${behat_binary} ${@}
 else
     status_message "Cannot find executable Behat here: ${behat_binary}" error
 fi
