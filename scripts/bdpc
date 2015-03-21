@@ -171,12 +171,7 @@ done
 
 # Directory with Bash files.
 commands_path=${0}
-# Command name ("behat" by default).
 command=${1}
-
-if [ -z "${command}" ]; then
-    command="__init"
-fi
 
 package_dir=`get_symlink_full_path ${commands_path}`
 commands_path=${package_dir}/commands
@@ -197,6 +192,8 @@ if [ ! -d "${package_dir}" ]; then
 fi
 
 # Execute the command if it has been defined.
-if [ -f "${commands_path}/${command}" ]; then
-    . ${commands_path}/${command}
+if [ ! -f "${commands_path}/${command}" ]; then
+    command="__init"
 fi
+
+. ${commands_path}/${command}
