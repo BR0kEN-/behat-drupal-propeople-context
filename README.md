@@ -57,3 +57,4 @@ running on Drupal 7. The contexts in this repository extend the contexts of
 ## Contributors
 
 - [Alexander Petrov](https://github.com/aapetrov)
+- [Anastasia Guba](https://github.com/Naastya)

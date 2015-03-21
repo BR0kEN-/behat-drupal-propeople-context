@@ -89,6 +89,12 @@ Then I work with elements in "header" region
 ```
 
 ```gherkin
+## That step helps to exit from element visibility scope that was defined by
+## executing of previous step.
+Then I checkout to whole page
+```
+
+```gherkin
 ## This method must be used instead of 'I fill in "field" with "value"'.
 Then I fill "last_name" with "Bondarenko"
 ```
@@ -179,6 +185,11 @@ Then I should see "Text" in "Presentation" WYSIWYG editor
 
 ```gherkin
 Then I should not see "vulnerability" in "Presentation" WYSIWYG editor
+```
+
+```gherkin
+Then I fill in following WYSIWYG editors
+  | Editor locator | Value |
 ```
 
 To see all, available in your system, steps execute the `behat -dl`.
