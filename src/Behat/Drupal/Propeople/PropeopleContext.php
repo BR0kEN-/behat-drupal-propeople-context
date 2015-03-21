@@ -414,6 +414,14 @@ class PropeopleContext extends RawPropeopleContext
     }
 
     /**
+     * @Then /^I checkout to whole page$/
+     */
+    public function unsetWorkingElementScope()
+    {
+        $this->unsetWorkingElement();
+    }
+
+    /**
      * @param int $seconds
      *   Amount of seconds when nothing to happens.
      *
