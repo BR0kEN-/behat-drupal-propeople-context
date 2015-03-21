@@ -4,6 +4,9 @@
  */
 namespace Behat\Drupal\Propeople\Wysiwyg;
 
+// Helpers.
+use Behat\Gherkin\Node\TableNode;
+
 /**
  * @todo Add TinyMCE support.
  */
@@ -82,6 +85,19 @@ class WysiwygContext extends RawWysiwygContext
                 $condition ? '' : 'not',
                 $this->getEditorSelector()
             ));
+        }
+    }
+
+    /**
+     * @param TableNode $fields
+     *   | Editor locator | Value |
+     *
+     * @Then /^(?:|I )fill in following WYSIWYG editors:$/
+     */
+    public function fillInMultipleEditors(TableNode $fields)
+    {
+        foreach ($fields->getRowsHash() as $editor => $value) {
+            $this->setData($value, $editor);
         }
     }
 }

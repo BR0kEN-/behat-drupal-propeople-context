@@ -170,7 +170,7 @@ Then I fill "<strong>Text</strong>" in "Presentation" WYSIWYG editor
 ```
 
 ```gherkin
-Then I type "<p>additional text</p>" in "Presentation" WYSIWYG editor
+Then I type "additional text" in "Presentation" WYSIWYG editor
 ```
 
 ```gherkin
