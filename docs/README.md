@@ -234,3 +234,10 @@ Given I am logged in as a user with "administrator" role and filled fields:
   | Position  | Web Developer       |
   | Company   | Propeople           |
 ```
+
+```gherkin
+## Fill login form with existing credentials.
+Then I am logged in with credentials:
+  | name | BR0kEN  |
+  | pass | p4asswd |
+```
