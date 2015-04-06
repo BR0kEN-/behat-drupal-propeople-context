@@ -26,8 +26,9 @@ class UserContext extends RawUserContext
      *   | Position                 | Developer         |
      *   | field_crm_user_company   | Propeople         |
      *
-     * @user
      * @Given /^(?:|I am )logged in as a user with "([^"]*)" role(?:|s)(?:| and filled fields:)$/
+     *
+     * @user @api
      */
     public function createDrupalUser($roles, TableNode $fields = null)
     {
@@ -109,8 +110,9 @@ class UserContext extends RawUserContext
      *
      * @throws \Exception
      *
-     * @user
      * @Given /^(?:|I )am logged in with credentials:/
+     *
+     * @user
      */
     public function loginWithCredentials(TableNode $credentials)
     {

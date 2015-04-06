@@ -7,8 +7,9 @@ namespace Behat\Drupal\Propeople\Drush;
 class DrushContext extends RawDrushContext
 {
     /**
-     * @drush
      * @Given /^(?:|I )login with one time link$/
+     *
+     * @drush @api
      */
     public function loginWithOneTimeLink()
     {

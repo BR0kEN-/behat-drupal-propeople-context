@@ -169,6 +169,8 @@ class PropeopleContext extends RawPropeopleContext
      *   When user is anonymous.
      *
      * @Then /^(?:I )fill in "([^"]*)" with value of field "([^"]*)" of current user$/
+     *
+     * @api
      */
     public function fillInWithValueOfFieldOfCurrentUser($field, $user_field)
     {
@@ -328,6 +330,7 @@ class PropeopleContext extends RawPropeopleContext
     }
 
     /**
+     * @todo needs example.
      * @param string $action
      *   Can be "check" or "uncheck".
      * @param TableNode $checkboxes
@@ -361,6 +364,8 @@ class PropeopleContext extends RawPropeopleContext
      * @throws \Exception
      *
      * @Given /^(?:|I )check the(| customized) "([^"]*)" radio button$/
+     *
+     * @javascript
      */
     public function radioAction($customized, $selector)
     {
