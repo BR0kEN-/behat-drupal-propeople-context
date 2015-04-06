@@ -27,7 +27,7 @@ class UserContext extends RawUserContext
      *   | field_crm_user_company   | Propeople         |
      *
      * @user
-     * @Given /^(?:|I am )logged in as a user with "([^"]*)" role(?:| and filled fields)$/
+     * @Given /^(?:|I am )logged in as a user with "([^"]*)" role(?:|s)(?:| and filled fields:)$/
      */
     public function createDrupalUser($roles, TableNode $fields = null)
     {

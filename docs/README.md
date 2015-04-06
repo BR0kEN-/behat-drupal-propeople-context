@@ -58,11 +58,12 @@ Given I typed "Joe" in the "name" field and choose 2 option from autocomplete va
 ```
 
 ```gherkin
+## This method must be used instead of 'I wait for AJAX to finish'!
 Then I wait until AJAX is finished
 ```
 
 ```gherkin
-Given I [un]check the boxes:
+Given I (| un)check the boxes:
   | -Consumer Products  |
   | -ICT                |
   | -Financial Services |
@@ -75,7 +76,7 @@ Given I [un]check the boxes:
 ##   will used only visible, if exist.
 ## - If trying to get the field by label, then it must have the "for" attribute
 ##   and element with ID, specified in that attribute, must exist.
-Given I check the "Show" radio button
+Given I check the(| customized) "Show" radio button
 ```
 
 ```gherkin
@@ -95,12 +96,12 @@ Then I checkout to whole page
 ```
 
 ```gherkin
-## This method must be used instead of 'I fill in "field" with "value"'.
+## This method must be used instead of 'I fill in "field" with "value"'!
 Then I fill "last_name" with "Bondarenko"
 ```
 
 ```gherkin
-## This method must be used instead of 'I fill in the following:'.
+## This method must be used instead of 'I fill in the following:'!
 Then I fill the following:
   | first_name | Sergey    |
   | last_name | Bondarenko |
@@ -112,7 +113,21 @@ Then I fill the following:
 ## - The text can be specified inaccurately, but you should remember that in
 ##   region can be more than one element with specified text and will pressed
 ##   the first only.
-Then I press on element with text "Account" in "footer" region
+## - If region was not specified, the whole page will be used.
+Then I press on element with text "Account"(| in "footer" region)
+```
+
+```gherkin
+And I attach file "600x400.jpg" to "Logotype"
+```
+
+```gherkin
+## - This method works with "Simple Hierarchical Select" and "Hierarchical Select"
+##   modules.
+## - The label of field or wrapper ID can be used as selector.
+Then I select the following in "Categories" hierarchical select:
+  | EN                  |
+  | Financial Services  |
 ```
 
 ### Redirect context
@@ -130,6 +145,13 @@ Then I should be redirected
 ## - By default, the waiting timeout is set to 15 seconds, but you can change
 ##   this in "behat.yml".
 Then I should be redirected on "https://example.com"
+```
+
+```gherkin
+And user should(| not) have an access to the following pages:
+  | admin/people/create |
+  | node/add/article    |
+  | user/1/edit         |
 ```
 
 ### Email context
@@ -193,3 +215,22 @@ Then I fill in following WYSIWYG editors
 ```
 
 To see all, available in your system, steps execute the `behat -dl`.
+
+### User context
+
+All scenarios, used steps from this context, should be tagged with `@user` tag.
+
+```gherkin
+## - This method must be used instead of 'I am logged in as a user with the "administrator" role'!
+## - Multiple roles can be listed by comma: 'And logged in as a user with "administrator, editor" roles'.
+Given I am logged in as a user with "administrator" role
+```
+
+```gherkin
+## - Taxonomy Term Reference supported. You must specify name of term and
+##   correct value will be saved.
+Given I am logged in as a user with "administrator" role and filled fields:
+  | Full name | Sergey Bondarenko   |
+  | Position  | Web Developer       |
+  | Company   | Propeople           |
+```

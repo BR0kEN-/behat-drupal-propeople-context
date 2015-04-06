@@ -313,7 +313,9 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
         // "Unable to access the response content before visiting a page" (Behat\Mink\Exception\DriverException).
         $session->visit($this->locatePath('/'));
 
-//        return (bool) $session->getCookie(session_name());
+        if ($session->getCookie(session_name())) {
+            return true;
+        }
 
         $body = $session->getPage()->find('css', 'body');
 
