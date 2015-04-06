@@ -130,7 +130,7 @@ class EmailContext extends RawEmailContext
                     $this->throwNoSuchElementException(sprintf('%s text', $button_text), $submit);
                     $submit->click();
 
-                    if (!$this->loggedIn()) {
+                    if (!$this->isLoggedIn()) {
                         throw new \Exception(sprintf(
                             'Failed to login as user "%s" with password "%s"',
                             $matches['username'],
