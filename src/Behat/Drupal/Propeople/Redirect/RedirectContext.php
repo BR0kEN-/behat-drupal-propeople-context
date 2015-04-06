@@ -4,6 +4,10 @@
  */
 namespace Behat\Drupal\Propeople\Redirect;
 
+// Helpers.
+use Behat\Gherkin\Node\TableNode;
+use Behat\Mink as Mink;
+
 class RedirectContext extends RawRedirectContext
 {
     private $waitForRedirect;
@@ -58,5 +62,41 @@ class RedirectContext extends RawRedirectContext
         }
 
         throw new \OverflowException('The waiting time is over.');
+    }
+
+    /**
+     * @param $not
+     * @param TableNode $paths
+     *
+     * @throws \Exception
+     *
+     * @Given /^user should(| not) have an access to the following pages:$/
+     */
+    public function checkUserAccessToPages($not, TableNode $paths)
+    {
+        $result = array();
+        $code = $not ? 403 : 200;
+
+        // Use "GoutteDriver" to have an ability to check answer code.
+        $driver = new Mink\Driver\GoutteDriver();
+        $session = new Mink\Session($driver);
+        $session->start();
+
+        foreach (array_keys($paths->getRowsHash()) as $path) {
+            $path = trim($path, '/');
+            $session->visit($this->locatePath($path));
+
+            if ($session->getStatusCode() !== $code) {
+                $result[] = $path;
+            }
+        }
+
+        if ($result) {
+            throw new \Exception(sprintf(
+                'The following paths: "%s" are %s accessible!',
+                implode(', ', $result),
+                $not ? '' : 'not'
+            ));
+        }
     }
 }
