@@ -91,7 +91,7 @@ class UserContext extends RawUserContext
             }
 
             // Throw an exception when one of required fields was not filled.
-            if ($required) {
+            if (!empty($required)) {
                 throw new \Exception(sprintf(
                     'The following fields "%s" are required and has not filled.',
                     implode('", "', $required)

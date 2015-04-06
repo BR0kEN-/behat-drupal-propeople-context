@@ -484,9 +484,6 @@ class PropeopleContext extends RawPropeopleContext
     {
         $element = $this->getWorkingElement();
         $wrapper = $element->findById($selector);
-        $xpath = function ($id) {
-            return "//select[@id[starts-with(., '$id')]]";
-        };
 
         if ($wrapper) {
             $labels = $wrapper->findAll('xpath', '//label[@for]');
@@ -494,41 +491,34 @@ class PropeopleContext extends RawPropeopleContext
             $labels = $this->findFieldLabels($selector, true);
         }
 
-        if ($labels) {
-            /* @var \Behat\Mink\Element\NodeElement $label */
-            $label = reset($labels);
-            $parent = $label->getParent();
-            $base_id = $label->getAttribute('for');
-
-            // The "Hierarchical Select" and "Simple Hierarchical Select" modules
-            // has a different approaches to assign the ID to "select" element.
-            foreach (array(
-                // Simple Hierarchical Select:
-                // Formula: <BASE_ID>-select-<N>
-                // <BASE_ID> - Drupal field ID.
-                // <N> - field number. Nobody knows why calculus starts from "1".
-                'select' => 1,
-                // Hierarchical Select:
-                // Formula: <BASE_ID>-hierarchical-select-selects-<N>
-                // <BASE_ID> - Drupal field ID.
-                // <N> - field number.
-                'hierarchical-select-selects' => 0,
-            ) as $suffix => $iterate) {
-                if ($element->find('xpath', $xpath("$base_id-$suffix-$iterate"))) {
-                    foreach (array_keys($values->getRowsHash()) as $i => $value) {
-                        $element_id = "$base_id-$suffix-" . ($i + $iterate);
-                        $select = $parent->find('xpath', $xpath($element_id));
-
-                        $this->throwNoSuchElementException($element_id, $select);
-                        $select->selectOption($value);
-                        $this->waitAjaxAndAnimations();
-                    }
-
-                    return;
-                }
-            }
+        if (!$labels) {
+            throw new \Exception('No one hierarchical select was found.');
         }
 
-        throw new \Exception('No one hierarchical select was found.');
+        /* @var \Behat\Mink\Element\NodeElement $label */
+        $label = reset($labels);
+        $parent = $label->getParent();
+
+        foreach (array_keys($values->getRowsHash()) as $i => $value) {
+            $selects = array();
+            $select = null;
+
+            foreach ($parent->findAll('css', 'select') as $select) {
+                if ($select->isVisible()) {
+                    $selects[] = $select;
+                }
+            }
+
+            if (!isset($selects[$i])) {
+                throw new \InvalidArgumentException(sprintf(
+                    'The value "%s" was specified for select #%s but it does not exist.',
+                    $value,
+                    $i
+                ));
+            }
+
+            $selects[$i]->selectOption($value);
+            $this->waitAjaxAndAnimations();
+        }
     }
 }

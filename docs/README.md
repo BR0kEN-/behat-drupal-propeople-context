@@ -122,8 +122,8 @@ And I attach file "600x400.jpg" to "Logotype"
 ```
 
 ```gherkin
-## - This method works with "Simple Hierarchical Select" and "Hierarchical Select"
-##   modules.
+## - This method works with "Clientside Simple Hierarchical Select",
+##   "Simple Hierarchical Select" and "Hierarchical Select" modules.
 ## - The label of field or wrapper ID can be used as selector.
 Then I select the following in "Categories" hierarchical select:
   | EN                  |

@@ -60,7 +60,7 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
         $namespace = explode('Context', $context);
         $namespace = reset($namespace);
         $environment = $this->getEnvironment();
-        $object = false;
+        $object = '';
 
         foreach (array(
             array(__NAMESPACE__, $namespace),
@@ -76,15 +76,15 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
             }
         }
 
-        if ($object) {
-            return $environment->getContext($object);
+        if (empty($object)) {
+            throw new \Exception(sprintf(
+                'Method %s does not exist or "%s" context are not configured in "behat.yml"',
+                $method,
+                $object
+            ));
         }
 
-        throw new \Exception(sprintf(
-            'Method %s does not exist or "%s" context are not configured in "behat.yml"',
-            $method,
-            $object
-        ));
+        return $environment->getContext($object);
     }
 
     /**
@@ -309,11 +309,11 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     public function isLoggedIn()
     {
         $session = $this->getSession();
-        // We need to visit any page to start session, otherwise the next exception will be thrown:
-        // "Unable to access the response content before visiting a page" (Behat\Mink\Exception\DriverException).
+        // We need to visit any page to start session, otherwise the next exception will
+        // be thrown: "Unable to access the response content before visiting a page".
         $session->visit($this->locatePath('/'));
 
-        if ($session->getCookie(session_name())) {
+        if (!empty($session->getCookie(session_name()))) {
             return true;
         }
 
@@ -390,6 +390,6 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
 
     public function waitAjaxAndAnimations()
     {
-        $this->getSession()->wait(500, "window.__behatAjax === false && !jQuery(':animated').length");
+        $this->getSession()->wait(1000, "window.__behatAjax === false && !jQuery(':animated').length");
     }
 }

@@ -91,7 +91,7 @@ class RedirectContext extends RawRedirectContext
             }
         }
 
-        if ($result) {
+        if (!empty($result)) {
             throw new \Exception(sprintf(
                 'The following paths: "%s" are %s accessible!',
                 implode(', ', $result),
