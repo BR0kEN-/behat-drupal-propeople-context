@@ -8,9 +8,9 @@ namespace Behat\Drupal\Propeople;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 // Helpers.
+use Behat\Behat\Hook\Scope\AfterStepScope;
 use WebDriver\Service\CurlService;
 use Behat\Gherkin\Node\TableNode;
-use Behat\Behat\Snippet\Snippet;
 
 class PropeopleContext extends RawPropeopleContext
 {
@@ -66,7 +66,7 @@ class PropeopleContext extends RawPropeopleContext
      */
     public function iShouldSeeNoErrors()
     {
-        $page = $this->getWorkingElement();
+        $page = $this->getSession()->getPage();
         $errors = $page->find('css', $this->getDrupalSelector('error_message_selector'));
 
         // Some modules are inserted an empty container for errors before
@@ -140,14 +140,12 @@ class PropeopleContext extends RawPropeopleContext
      * @param string $selector
      *   CSS selector or region name.
      *
-     * @Given /^(?:|I )press on element with text "([^"]*)" in "([^"]*)"(?:| region)$/
+     * @Given /^(?:|I )press on element with text "([^"]*)"(?:| in "([^"]*)"(?:| region))$/
      */
-    public function pressElementByText($text, $selector)
+    public function pressElementByText($text, $selector = null)
     {
-        $region = $this->findElementBySelectors(array('region'), $selector);
-        $this->throwNoSuchElementException($selector, $region);
-
-        $element = $region->find('xpath', "//*[text()[contains(., '$text')]]");
+        $region = $selector ? $this->findElementBySelectors(array('region'), $selector) : $this->getWorkingElement();
+        $element = $region->find('xpath', "//*[text()[starts-with(., '$text')]]");
         $this->throwNoSuchElementException($text, $element);
 
         $element->press();
@@ -203,7 +201,7 @@ class PropeopleContext extends RawPropeopleContext
      *
      * @param string $value
      *   Typed text.
-     * @param string $field
+     * @param string $selector
      *   Selector of the field.
      * @param int $option
      *   An option number. Will be selected from loaded variants.
@@ -226,11 +224,13 @@ class PropeopleContext extends RawPropeopleContext
      *   When neither option was not loaded.
      * @throws \OverflowException
      *   When $option is more than variants are available.
+     * @throws \Exception
+     *   When value was not changed.
      *
      * @javascript
      * @Then /^(?:|I )typed "([^"]*)" in the "([^"]*)" field and chose (\d+) option from autocomplete variants$/
      */
-    public function choseOptionFromAutocompleteVariants($value, $field, $option)
+    public function choseOptionFromAutocompleteVariants($value, $selector, $option)
     {
         if (!$option) {
             throw new \InvalidArgumentException(sprintf(
@@ -239,78 +239,92 @@ class PropeopleContext extends RawPropeopleContext
             ));
         }
 
-        $page = $this->getWorkingElement();
+        $field = $this->findField($selector, $this->getWorkingElement());
+        $this->throwNoSuchElementException($selector, $field);
 
-        $page->fillField($field, $value);
-        $this->waitUntilAjaxIsFinished();
+        $this->getSession()->executeScript(sprintf(
+            "jQuery('#%s').val('%s').keyup();",
+            $field->getAttribute('id'),
+            $value
+        ));
+        $this->waitAjaxAndAnimations();
 
-        $autocomplete = $page->findById('autocomplete');
+        $autocomplete = $field->getParent()->findById('autocomplete');
         $this->throwNoSuchElementException('#autocomplete', $autocomplete);
 
-        $options = $autocomplete->findAll('css', 'li');
+        $options = count($autocomplete->findAll('css', 'li'));
 
         if (!$options) {
             throw new \RuntimeException('Neither option was not loaded.');
         }
 
-        $options_number = count($options);
-
-        if ($option > $options_number) {
+        if ($option > $options) {
             throw new \OverflowException(sprintf(
-                'You can not select option %s, as there are only %d.',
+                'You can not select an option %s, as there are only %d.',
                 $option,
-                $options_number
+                $options
             ));
         }
 
-        $mink_context = $this->getMinkContext();
-
         for ($i = 0; $i < $option; $i++) {
-            $mink_context->pressKey('down', $field);
+            // 40 - down
+            $field->keyDown(40);
+            $field->keyUp(40);
         }
 
-        $mink_context->pressKey('enter', $field);
-    }
+        // 13 - enter
+        $field->keyDown(13);
+        $field->keyUp(13);
 
-    /**
-     * Set the global handlers for "ajaxStart" and "ajaxComplete" events.
-     *
-     * @param Snippet $event
-     *
-     * @BeforeStep @javascript
-     */
-    public function beforeIWaitUntilAjaxIsFinished(Snippet $event)
-    {
-        if (self::isStepImpliesJsEvent($event)) {
-            $javascript = '';
-
-            foreach (array('Start' => 'false', 'Complete' => 'true') as $name => $state) {
-                $javascript .= "jQuery(document).one('ajax$name',function(){window.__behatAjax=$state});";
-            }
-
-            $this->getSession()->executeScript($javascript);
+        if ($field->getValue() == $value) {
+            throw new \Exception(sprintf('The value of "%s" field was not changed.', $selector));
         }
     }
 
     /**
-     * @param Snippet $event
+     * Set the jQuery handlers for "start" and "finish" events of AJAX queries.
+     * In each method can be used the "waitAjaxAndAnimations" method for check
+     * that AJAX was finished.
      *
-     * @AfterStep @javascript
+     * @see waitAjaxAndAnimations()
+     *
+     * @BeforeScenario @javascript
      */
-    public function afterIWaitUntilAjaxIsFinished(Snippet $event)
+    public function beforeScenario()
     {
-        if (self::isStepImpliesJsEvent($event)) {
-            $this->waitUntilAjaxIsFinished();
+        $session = $this->getSession();
+        // Any page should be visited due to using jQuery.
+        $session->visit($this->locatePath('/'));
+
+        $javascript = '';
+
+        foreach (array('Start' => 'true', 'Complete' => 'false') as $name => $state) {
+            $javascript .= "jQuery(document).bind('ajax$name',function(){window.__behatAjax=$state});";
+        }
+
+        $session->executeScript($javascript);
+    }
+
+    /**
+     * @param AfterStepScope $step
+     *
+     * @javascript
+     * @AfterStep
+     */
+    public function afterIWaitUntilAjaxIsFinished(AfterStepScope $step)
+    {
+        if (self::isStepImpliesJsEvent($step)) {
+            $this->waitAjaxAndAnimations();
         }
     }
 
     /**
      * @javascript
-     * @Given /^I wait until AJAX is finished$/
+     * @Given /^(?:|I )wait until AJAX is finished$/
      */
     public function waitUntilAjaxIsFinished()
     {
-        $this->getSession()->wait(3000, 'window.__behatAjax === true');
+        $this->waitAjaxAndAnimations();
     }
 
     /**
@@ -337,6 +351,8 @@ class PropeopleContext extends RawPropeopleContext
      *
      * @see assertSelectRadioById()
      *
+     * @param string $customized
+     *   Can be an empty string or " customized".
      * @param string $selector
      *   Field selector.
      *
@@ -344,46 +360,45 @@ class PropeopleContext extends RawPropeopleContext
      *   When radio button was not found.
      * @throws \Exception
      *
-     * @Given /^(?:|I )check the "([^"]*)" radio button$/
+     * @Given /^(?:|I )check the(| customized) "([^"]*)" radio button$/
      */
-    public function radioAction($selector)
+    public function radioAction($customized, $selector)
     {
         $page = $this->getWorkingElement();
         $field = $page->findField($selector);
+        $customized = (bool) $customized;
 
-        if (!$field || !$field->isVisible()) {
-            /* @var \Behat\Mink\Element\NodeElement $field */
-            foreach ($page->findAll('xpath', "//label[contains(text(), '$selector')]") as $field) {
-                if ($field->isVisible()) {
-                    $element_id = $field->getAttribute('for');
-
-                    if (!$element_id || !$page->findById($element_id)) {
-                        throw new \Exception(
-                            'The label of a field has no "for" attribute or an
-                            element cannot be found by value from that attribute.'
-                        );
-                    } else {
-                        $field->click();
-                    }
-
-                    return;
+        // Try to find a label of radio button if it custom and hidden or if field was not found.
+        if (($field && $customized && !$field->isVisible()) || !$field) {
+            // Find all labels of a radio button or only first, if it is not custom.
+            foreach ($this->findFieldLabels($selector, !$customized) as $label) {
+                // Check a custom label for visibility.
+                if ($customized && !$label->isVisible()) {
+                    continue;
                 }
+
+                $label->click();
+                return;
             }
+        } elseif ($field) {
+            $field->click();
+            return;
         }
 
         $this->throwNoSuchElementException($selector, $field);
-        $field->selectOption($field->getAttribute('value'));
     }
 
     /**
-     * @param string $field
+     * @param string $selector
      * @param string $value
      *
      * @When /^(?:|I )fill "([^"]*)" with "([^"]*)"$/
      */
-    public function fillField($field, $value)
+    public function fillField($selector, $value)
     {
-        $this->getWorkingElement()->fillField($field, $value);
+        $field = $this->findField($selector);
+        $this->throwNoSuchElementException($selector, $field);
+        $field->setValue($value);
     }
 
     /**
@@ -430,5 +445,90 @@ class PropeopleContext extends RawPropeopleContext
     public function waitSeconds($seconds)
     {
         sleep($seconds);
+    }
+
+    /**
+     * @Given /^(?:|I )attach file "([^"]*)" to "([^"]*)"$/
+     */
+    public function attachFile($file, $selector)
+    {
+        $files_path = $this->getMinkParameter('files_path');
+
+        if (!$files_path) {
+            throw new \Exception('The "files_path" Mink parameter was not configured.');
+        }
+
+        $file = rtrim(realpath($files_path), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $file;
+
+        if (!is_file($file)) {
+            throw new \InvalidArgumentException(sprintf('The "%s" file does not exist.', $file));
+        }
+
+        $field = $this->findField($selector);
+        $this->throwNoSuchElementException($selector, $field);
+        $field->attachFile($file);
+    }
+
+    /**
+     * @param string $selector
+     * @param TableNode $values
+     *
+     * @throws \Behat\Mink\Exception\ElementNotFoundException
+     * @throws \Exception
+     * @throws \WebDriver\Exception\NoSuchElement
+     *
+     * @javascript
+     * @Given /^(?:|I )select the following in "([^"]*)" hierarchical select:$/
+     */
+    public function setValueForHierarchicalSelect($selector, TableNode $values)
+    {
+        $element = $this->getWorkingElement();
+        $wrapper = $element->findById($selector);
+        $xpath = function ($id) {
+            return "//select[@id[starts-with(., '$id')]]";
+        };
+
+        if ($wrapper) {
+            $labels = $wrapper->findAll('xpath', '//label[@for]');
+        } else {
+            $labels = $this->findFieldLabels($selector, true);
+        }
+
+        if ($labels) {
+            /* @var \Behat\Mink\Element\NodeElement $label */
+            $label = reset($labels);
+            $parent = $label->getParent();
+            $base_id = $label->getAttribute('for');
+
+            // The "Hierarchical Select" and "Simple Hierarchical Select" modules
+            // has a different approaches to assign the ID to "select" element.
+            foreach (array(
+                // Simple Hierarchical Select:
+                // Formula: <BASE_ID>-select-<N>
+                // <BASE_ID> - Drupal field ID.
+                // <N> - field number. Nobody knows why calculus starts from "1".
+                'select' => 1,
+                // Hierarchical Select:
+                // Formula: <BASE_ID>-hierarchical-select-selects-<N>
+                // <BASE_ID> - Drupal field ID.
+                // <N> - field number.
+                'hierarchical-select-selects' => 0,
+            ) as $suffix => $iterate) {
+                if ($element->find('xpath', $xpath("$base_id-$suffix-$iterate"))) {
+                    foreach (array_keys($values->getRowsHash()) as $i => $value) {
+                        $element_id = "$base_id-$suffix-" . ($i + $iterate);
+                        $select = $parent->find('xpath', $xpath($element_id));
+
+                        $this->throwNoSuchElementException($element_id, $select);
+                        $select->selectOption($value);
+                        $this->waitAjaxAndAnimations();
+                    }
+
+                    return;
+                }
+            }
+        }
+
+        throw new \Exception('No one hierarchical select was found.');
     }
 }
