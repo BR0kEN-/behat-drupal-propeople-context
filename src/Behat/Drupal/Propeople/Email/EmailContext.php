@@ -53,10 +53,11 @@ class EmailContext extends RawEmailContext
     public function checkThatEmailToWasSent($to)
     {
         foreach ($this->getEmailMessages() as $message) {
-            if ($message['to'] != $to) {
-                throw new \RuntimeException(sprintf('The message was not sent to "%s".', $to));
+            if ($message['to'] === $to) {
+                return TRUE;
             }
         }
+        throw new \RuntimeException(sprintf('The message was not sent to "%s" email.', $to));
     }
 
     /**
@@ -70,10 +71,11 @@ class EmailContext extends RawEmailContext
     public function checkThatEmailBodyContainsTheText($text)
     {
         foreach ($this->getEmailMessages() as $message) {
-            if (strpos($message['body'], $text) === false) {
-                throw new \RuntimeException('Did not find expected content in message body.');
+            if (strpos($message['body'], $text) !== false) {
+                return TRUE;
             }
         }
+        throw new \RuntimeException('Did not find expected content in any messages body.');
     }
 
     /**

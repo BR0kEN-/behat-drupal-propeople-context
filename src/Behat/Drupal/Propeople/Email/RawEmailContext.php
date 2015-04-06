@@ -49,8 +49,9 @@ class RawEmailContext extends RawPropeopleContext
      */
     public function getEmailMessages()
     {
-        // We can't use variable_get() because $conf is only
-        // fetched once per scenario.
+        // We can't use variable_get() because Behat has another bootstrapped
+        // variable $conf that is not updated from curl bootstrapped
+        // Drupal instance.
         if (empty($this->messages)) {
             $this->messages = db_select('variable', 'v')
               ->fields('v', array('value'))
