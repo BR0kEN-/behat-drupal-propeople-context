@@ -39,12 +39,8 @@ class UserContext extends RawUserContext
             $locators = array();
             $required = array();
 
-            // Collect all fields.
-            //
-            // @example
-            // $locators['Full name'] = array(/* drupal field definition array */);
-            // $locators['field_user_full_name'] = array(/* drupal field definition array */);
-            // $required['field_user_full_name'] = 'Full name';
+            // The fields in "$locators" array stored by machine name of a field
+            // and duplicates by field label.
             foreach (field_info_instances('user', 'user') as $field_name => $definition) {
                 $locators[$field_name] = $definition;
                 $locators[$definition['label']] = $definition;
