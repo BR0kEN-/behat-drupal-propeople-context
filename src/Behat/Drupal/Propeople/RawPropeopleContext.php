@@ -7,20 +7,38 @@ namespace Behat\Drupal\Propeople;
 // Contexts.
 use Drupal\DrupalExtension\Context\RawDrupalContext;
 use Behat\Behat\Context\SnippetAcceptingContext;
+use Behat\Drupal\Propeople\User\UserContext;
 use Behat\Drupal\Propeople\Email\EmailContext;
 use Behat\Drupal\Propeople\Drush\DrushContext;
+use Behat\Drupal\Propeople\Wysiwyg\WysiwygContext;
 use Behat\Drupal\Propeople\Redirect\RedirectContext;
+use Drupal\DrupalExtension\Context\MinkContext;
+use Drupal\DrupalExtension\Context\DrupalContext;
+use Drupal\DrupalExtension\Context\MessageContext;
 
 // Exceptions.
 use WebDriver\Exception\NoSuchElement;
 
 // Helpers.
 use Behat\Mink\Session;
-use Behat\Behat\Snippet\Snippet;
 use Behat\Mink\Element\NodeElement;
+use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Mink\Element\DocumentElement;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 
+/**
+ * @see __call()
+ *
+ * @method UserContext getUserContext()
+ * @method EmailContext getEmailContext()
+ * @method DrushContext getDrushContext()
+ * @method WysiwygContext getWysiwygContext()
+ * @method RedirectContext getRedirectContext()
+ * @method PropeopleContext getPropeopleContext()
+ * @method MinkContext getMinkContext()
+ * @method DrupalContext getDrupalContext()
+ * @method MessageContext getMessageContext()
+ */
 class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingContext
 {
     const DRUPAL_EXTENSION_CONTEXT_NAMESPACE = 'Drupal\DrupalExtension\Context';
@@ -28,9 +46,51 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     private $baseUrl = '';
 
     /**
+     * @param string $method
+     * @param array $arguments
+     *
+     * @throws \Exception
+     *
+     * @return mixed
+     */
+    public function __call($method, array $arguments)
+    {
+        $context = explode('get', $method);
+        $context = end($context);
+        $namespace = explode('Context', $context);
+        $namespace = reset($namespace);
+        $environment = $this->getEnvironment();
+        $object = false;
+
+        foreach (array(
+            array(__NAMESPACE__, $namespace),
+            array(__NAMESPACE__),
+            array('Drupal', 'DrupalExtension', 'Context'),
+        ) as $class) {
+            $class[] = $context;
+            $class = implode('\\', $class);
+
+            if ($environment->hasContextClass($class)) {
+                $object = $class;
+                break;
+            }
+        }
+
+        if ($object) {
+            return $environment->getContext($object);
+        }
+
+        throw new \Exception(sprintf(
+            'Method %s does not exist or "%s" context are not configured in "behat.yml"',
+            $method,
+            $object
+        ));
+    }
+
+    /**
      * @param BeforeSuiteScope $suite
      *
-     * @BeforeSuite
+     * @BeforeSuite @api
      */
     public static function beforeSuite(BeforeSuiteScope $suite)
     {
@@ -75,76 +135,6 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     public function getEnvironment()
     {
         return $this->getDrupal()->getEnvironment();
-    }
-
-    /**
-     * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *
-     * @return \Drupal\DrupalExtension\Context\MinkContext
-     */
-    public function getMinkContext()
-    {
-        return $this->getEnvironment()->getContext(self::DRUPAL_EXTENSION_CONTEXT_NAMESPACE . '\MinkContext');
-    }
-
-    /**
-     * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *
-     * @return \Drupal\DrupalExtension\Context\DrupalContext
-     */
-    public function getDrupalContext()
-    {
-        return $this->getEnvironment()->getContext(self::DRUPAL_EXTENSION_CONTEXT_NAMESPACE . '\DrupalContext');
-    }
-
-    /**
-     * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *
-     * @return \Drupal\DrupalExtension\Context\MessageContext
-     */
-    public function getMessageContext()
-    {
-        return $this->getEnvironment()->getContext(self::DRUPAL_EXTENSION_CONTEXT_NAMESPACE . '\MessageContext');
-    }
-
-    /**
-     * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *
-     * @return PropeopleContext
-     */
-    public function getPropeopleContext()
-    {
-        return $this->getEnvironment()->getContext(__NAMESPACE__ . '\PropeopleContext');
-    }
-
-    /**
-     * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *
-     * @return EmailContext
-     */
-    public function getEmailContext()
-    {
-        return $this->getEnvironment()->getContext(__NAMESPACE__ . '\Email\EmailContext');
-    }
-
-    /**
-     * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *
-     * @return RedirectContext
-     */
-    public function getRedirectContext()
-    {
-        return $this->getEnvironment()->getContext(__NAMESPACE__ . '\Redirect\RedirectContext');
-    }
-
-    /**
-     * @throws \Behat\Behat\Context\Exception\ContextNotFoundException
-     *
-     * @return DrushContext
-     */
-    public function getDrushContext()
-    {
-        return $this->getEnvironment()->getContext(__NAMESPACE__ . '\Drush\DrushContext');
     }
 
     /**
@@ -211,24 +201,20 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     {
         $page = $this->getWorkingElement();
         $regions = $this->getDrupalParameter('region_map');
-        $element = null;
 
         foreach ($selectors as $type) {
-            $css = $locator;
-
             if ($type == 'region' && empty($regions[$locator])) {
                 $type = 'css';
-                $css = $locator;
             }
 
-            $element = $page->find($type, $css);
+            $element = $page->find($type, $locator);
 
             if ($element) {
-                break;
+                return $element;
             }
         }
 
-        return $element;
+        return $page->find('css', 'body');
     }
 
     /**
@@ -273,11 +259,11 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     /**
      * Check JS events in step definition.
      *
-     * @param Snippet $event
+     * @param StepScope $event
      *
      * @return int
      */
-    public static function isStepImpliesJsEvent(Snippet $event)
+    public static function isStepImpliesJsEvent(StepScope $event)
     {
         return preg_match('/(follow|press|click|submit)/i', $event->getStep()->getText());
     }
@@ -315,8 +301,93 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
         );
 
         $user = (object) $user;
-        $this->getDriver()->userCreate($user);
+        $this->userCreate($user);
 
         return $user;
+    }
+
+    public function isLoggedIn()
+    {
+        $session = $this->getSession();
+        // We need to visit any page to start session, otherwise the next exception will be thrown:
+        // "Unable to access the response content before visiting a page" (Behat\Mink\Exception\DriverException).
+        $session->visit($this->locatePath('/'));
+
+//        return (bool) $session->getCookie(session_name());
+
+        $body = $session->getPage()->find('css', 'body');
+
+        return $body && in_array('logged-in', explode(' ', $body->getAttribute('class')));
+    }
+
+    /**
+     * Find all field labels by text.
+     *
+     * @param string $text
+     *   Label text.
+     * @param bool $first
+     *   Indicates to find all or only first found item.
+     * @param bool $return_fields
+     *   if "true" - labels will be return, "false" - fields.
+     *
+     * @return NodeElement[]
+     */
+    public function findFieldLabels($text, $first = false, $return_fields = false)
+    {
+        $page = $this->getWorkingElement();
+        $labels = $fields = array();
+
+        /* @var NodeElement $label */
+        foreach ($page->findAll('xpath', "//label[starts-with(text(), '$text')]") as $label) {
+            $element_id = $label->getAttribute('for');
+
+            if ($element_id) {
+                $labels[] = $label;
+            }
+
+            // We trying to find an ID with "-upload" suffix, because some
+            // image inputs in Drupal are suffixed by it.
+            foreach (array($element_id, "$element_id-upload") as $element_id) {
+                $field = $page->findById($element_id);
+
+                if ($field) {
+                    $fields[] = $field;
+                    break;
+                }
+            }
+
+            if ($first) {
+                break;
+            }
+        }
+
+        return $return_fields ? $fields : $labels;
+    }
+
+    /**
+     * @param string $selector
+     * @param NodeElement|DocumentElement $element
+     *
+     * @return NodeElement|null
+     */
+    public function findField($selector, $element = null)
+    {
+        $element = $element ?: $this->getWorkingElement();
+        $field = $element->findField($selector);
+
+        if (!$field) {
+            $field = $this->findFieldLabels($selector, true, true);
+
+            if (is_array($field)) {
+                $field = reset($field);
+            }
+        }
+
+        return $field;
+    }
+
+    public function waitAjaxAndAnimations()
+    {
+        $this->getSession()->wait(500, "window.__behatAjax === false && !jQuery(':animated').length");
     }
 }
