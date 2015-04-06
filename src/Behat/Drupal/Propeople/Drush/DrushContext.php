@@ -12,7 +12,7 @@ class DrushContext extends RawDrushContext
      */
     public function loginWithOneTimeLink()
     {
-        if ($this->loggedIn()) {
+        if ($this->isLoggedIn()) {
             $this->logout();
         }
 
