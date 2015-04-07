@@ -24,7 +24,6 @@ use Behat\Mink\Session;
 use Behat\Mink\Element\NodeElement;
 use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Mink\Element\DocumentElement;
-use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 
 /**
  * @see __call()
@@ -88,11 +87,9 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     }
 
     /**
-     * @param BeforeSuiteScope $suite
-     *
      * @BeforeSuite @api
      */
-    public static function beforeSuite(BeforeSuiteScope $suite)
+    public static function beforeSuite()
     {
         self::setDrupalVariables(array(
           // Set to "FALSE", because the administration menu will not be rendered.

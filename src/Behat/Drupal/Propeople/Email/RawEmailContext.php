@@ -51,7 +51,7 @@ class RawEmailContext extends RawPropeopleContext
     {
         // We can't use variable_get() because $conf is only
         // fetched once per scenario.
-        if (!$this->messages) {
+        if (empty($this->messages)) {
             $this->messages = db_select('variable', 'v')
               ->fields('v', array('value'))
               ->condition('name', 'drupal_test_email_collector', '=')
@@ -61,8 +61,8 @@ class RawEmailContext extends RawPropeopleContext
             $this->messages = unserialize($this->messages);
         }
 
-        if (!$this->messages) {
-            throw new \RangeException('No one message was not sent.');
+        if (empty($this->messages)) {
+            throw new \RangeException('No one message was sent.');
         }
 
         return $this->messages;

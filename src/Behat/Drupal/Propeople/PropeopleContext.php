@@ -310,8 +310,7 @@ class PropeopleContext extends RawPropeopleContext
     /**
      * @param AfterStepScope $step
      *
-     * @javascript
-     * @AfterStep
+     * @AfterStep @javascript
      */
     public function afterIWaitUntilAjaxIsFinished(AfterStepScope $step)
     {

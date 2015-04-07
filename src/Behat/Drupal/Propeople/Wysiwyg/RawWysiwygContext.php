@@ -45,7 +45,11 @@ class RawWysiwygContext extends RawPropeopleContext
         $instance = "CKEDITOR.instances['$id']";
 
         if (!$this->getSession()->evaluateScript("return !!$instance")) {
-          throw new \Exception(sprintf('The editor "%s" was not found on the page %s', $id, $this->getSession()->getCurrentUrl()));
+            throw new \Exception(sprintf(
+                'The editor "%s" was not found on the page %s',
+                $id,
+                $this->getSession()->getCurrentUrl()
+            ));
         }
 
         return $instance;
