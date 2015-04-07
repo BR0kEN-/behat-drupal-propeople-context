@@ -62,6 +62,7 @@ class EmailContext extends RawEmailContext
                 return true;
             }
         }
+
         throw new \RuntimeException(sprintf('The message was not sent to "%s" email.', $to));
     }
 
@@ -85,6 +86,7 @@ class EmailContext extends RawEmailContext
                 return false;
             }
         }
+
         throw new \RuntimeException('Did not find expected content in any messages body.');
     }
 

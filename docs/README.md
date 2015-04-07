@@ -76,6 +76,7 @@ Given I (| un)check the boxes:
 ##   will used only visible, if exist.
 ## - If trying to get the field by label, then it must have the "for" attribute
 ##   and element with ID, specified in that attribute, must exist.
+## - The @javascript tag is necessary when "customized" is used!
 Given I check the(| customized) "Show" radio button
 ```
 

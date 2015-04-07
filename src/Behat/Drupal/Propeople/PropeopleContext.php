@@ -363,8 +363,6 @@ class PropeopleContext extends RawPropeopleContext
      * @throws \Exception
      *
      * @Given /^(?:|I )check the(| customized) "([^"]*)" radio button$/
-     *
-     * @javascript
      */
     public function radioAction($customized, $selector)
     {
