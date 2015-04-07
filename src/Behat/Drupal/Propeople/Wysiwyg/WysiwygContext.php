@@ -38,8 +38,9 @@ class WysiwygContext extends RawWysiwygContext
      * @throws \Exception
      *   When editor was not found.
      *
-     * @javascript @wysiwyg
      * @Given /^(?:|I )fill "([^"]*)" in (?:|"([^"]*)" )WYSIWYG editor$/
+     *
+     * @javascript @wysiwyg
      */
     public function setData($text, $selector = null)
     {
@@ -53,8 +54,9 @@ class WysiwygContext extends RawWysiwygContext
      * @throws \Exception
      *   When editor was not found.
      *
-     * @javascript @wysiwyg
      * @When /^(?:|I )type "([^"]*)" in (?:|"([^"]*)" )WYSIWYG editor$/
+     *
+     * @javascript @wysiwyg
      */
     public function insertText($text, $selector = null)
     {
@@ -71,8 +73,9 @@ class WysiwygContext extends RawWysiwygContext
      * @throws \RuntimeException
      *   When text was[not] found.
      *
-     * @javascript @wysiwyg
      * @Then /^(?:|I )should(| not) see "([^"]*)" in (?:|"([^"]*)" )WYSIWYG editor$/
+     *
+     * @javascript @wysiwyg
      */
     public function getData($condition, $text, $selector = null)
     {
@@ -93,6 +96,8 @@ class WysiwygContext extends RawWysiwygContext
      *   | Editor locator | Value |
      *
      * @Then /^(?:|I )fill in following WYSIWYG editors:$/
+     *
+     * @javascript @wysiwyg
      */
     public function fillInMultipleEditors(TableNode $fields)
     {
