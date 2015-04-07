@@ -48,15 +48,21 @@ class EmailContext extends RawEmailContext
      *
      * @Given /^(?:|I )check that email to "([^"]*)" was sent$/
      *
+     * @return boolean
+     *   True if email message for given email address was found.
+     *
+     * @throws \RuntimeException
+     *
      * @email @api
      */
     public function checkThatEmailToWasSent($to)
     {
         foreach ($this->getEmailMessages() as $message) {
-            if ($message['to'] != $to) {
-                throw new \RuntimeException(sprintf('The message was not sent to "%s".', $to));
+            if ($message['to'] === $to) {
+                return true;
             }
         }
+        throw new \RuntimeException(sprintf('The message was not sent to "%s" email.', $to));
     }
 
     /**
@@ -65,15 +71,21 @@ class EmailContext extends RawEmailContext
      *
      * @Given /^(?:|I )check that email body contains the "([^"]*)" text$/
      *
+     * @return boolean
+     *   True if email with given text was found.
+     *
+     * @throws \RuntimeException
+     *
      * @email @api
      */
     public function checkThatEmailBodyContainsTheText($text)
     {
         foreach ($this->getEmailMessages() as $message) {
-            if (strpos($message['body'], $text) === false) {
-                throw new \RuntimeException('Did not find expected content in message body.');
+            if (strpos($message['body'], $text) !== false) {
+                return false;
             }
         }
+        throw new \RuntimeException('Did not find expected content in any messages body.');
     }
 
     /**
