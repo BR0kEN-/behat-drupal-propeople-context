@@ -16,7 +16,12 @@ default:
         - Drupal\DrupalExtension\Context\MessageContext: ~
   extensions:
     Behat\MinkExtension:
-      goutte: ~
+      goutte:
+        guzzle_parameters:
+          config:
+            curl:
+              CURLOPT_TIMEOUT: 300
+              CURLOPT_CONNECTTIMEOUT: 0
       selenium2: ~
       base_url: <BASE_URL>
       files_path: resources
