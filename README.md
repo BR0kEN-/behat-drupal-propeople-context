@@ -58,3 +58,4 @@ running on Drupal 7. The contexts in this repository extend the contexts of
 
 - [Alexander Petrov](https://github.com/aapetrov)
 - [Anastasia Guba](https://github.com/Naastya)
+- [Artyom Miroshnik](https://github.com/M1r1k)
