@@ -16,10 +16,10 @@ class RawDrushContext extends RawPropeopleContext
      */
     public function getOneTimeLoginLink($username)
     {
-        return $this->getDrushDriver()->drush('uli', array(
+        return $this->getDrushDriver()->drush('uli', [
           $username,
           '--browser=0',
           "--uri={$this->getBaseUrl()}",
-        ));
+        ]);
     }
 }

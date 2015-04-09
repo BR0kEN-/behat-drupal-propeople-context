@@ -52,7 +52,7 @@ class RedirectContext extends RawRedirectContext
                 if (isset($page)) {
                     $page = $this->unTrailingSlashIt($page);
 
-                    if (!in_array($url, array($page, $this->getMinkParameter('base_url') . "/$page"))) {
+                    if (!in_array($url, [$page, $this->getMinkParameter('base_url') . "/$page"])) {
                         continue;
                     }
                 }
@@ -74,7 +74,7 @@ class RedirectContext extends RawRedirectContext
      */
     public function checkUserAccessToPages($not, TableNode $paths)
     {
-        $result = array();
+        $result = [];
         $code = $not ? 403 : 200;
 
         // Use "GoutteDriver" to have an ability to check answer code.

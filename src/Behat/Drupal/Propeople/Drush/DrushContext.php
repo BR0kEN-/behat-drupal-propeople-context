@@ -13,11 +13,13 @@ class DrushContext extends RawDrushContext
      */
     public function loginWithOneTimeLink()
     {
-        if ($this->isLoggedIn()) {
+        $user_context = $this->getUserContext();
+
+        if ($user_context->isLoggedIn()) {
             $this->logout();
         }
 
-        $user = $this->createTestUser();
+        $user = $user_context->createTestUser();
         // Care about not-configured Drupal installations, when
         // the "$base_url" variable is not set in "settings.php".
         // Also, remove the last underscore symbol from link for

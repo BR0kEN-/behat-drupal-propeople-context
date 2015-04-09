@@ -9,8 +9,8 @@ use Behat\Drupal\Propeople\RawPropeopleContext;
 
 class RawEmailContext extends RawPropeopleContext
 {
-    private $originalMailSystem = array('default-system' => 'DefaultMailSystem');
-    private $messages = array();
+    private $originalMailSystem = ['default-system' => 'DefaultMailSystem'];
+    private $messages = [];
 
     /**
      * @BeforeScenario @email
@@ -19,11 +19,11 @@ class RawEmailContext extends RawPropeopleContext
     {
         // Store the original system to restore after the scenario.
         $this->originalMailSystem = variable_get('mail_system', $this->originalMailSystem);
-        $this->setDrupalVariables(array(
+        $this->setDrupalVariables([
           // Set the mail system for testing. It will store an emails in
           // "drupal_test_email_collector" Drupal variable instead of sending.
-          'mail_system' => array('default-system' => 'TestingMailSystem'),
-        ));
+          'mail_system' => ['default-system' => 'TestingMailSystem'],
+        ]);
     }
 
     /**
@@ -31,13 +31,13 @@ class RawEmailContext extends RawPropeopleContext
      */
     public function restoreEmailSubmissionSettings()
     {
-        $this->setDrupalVariables(array(
+        $this->setDrupalVariables([
           // Bring back the original mail system.
           'mail_system' => $this->originalMailSystem,
           // Flush the email buffer, allowing us to reuse this step
           // definition to clear existing mail.
-          'drupal_test_email_collector' => array(),
-        ));
+          'drupal_test_email_collector' => [],
+        ]);
     }
 
     /**
@@ -54,7 +54,7 @@ class RawEmailContext extends RawPropeopleContext
         // Drupal instance.
         if (empty($this->messages)) {
             $this->messages = db_select('variable', 'v')
-              ->fields('v', array('value'))
+              ->fields('v', ['value'])
               ->condition('name', 'drupal_test_email_collector', '=')
               ->execute()
               ->fetchField();

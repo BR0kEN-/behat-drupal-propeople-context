@@ -35,52 +35,30 @@ class UserContext extends RawUserContext
         $user = $this->createUserWithRoles($roles);
 
         if ($fields) {
-            /* @var \EntityDrupalWrapper $entity */
-            $entity = entity_metadata_wrapper('user', user_load($user->uid));
-            $locators = array();
-            $required = array();
-
-            // The fields in "$locators" array stored by machine name of a field
-            // and duplicates by field label.
-            foreach (field_info_instances('user', 'user') as $field_name => $definition) {
-                $locators[$field_name] = $definition;
-                $locators[$definition['label']] = $definition;
-
-                if ($definition['required']) {
-                    $required[$field_name] = $definition['label'];
-                }
-            }
+            $entity = self::entityWrapper($user->uid);
+            $required = self::getUserEntityFields('required');
 
             // Fill fields. Field can be found by name or label.
             foreach ($fields->getRowsHash() as $field_name => $value) {
-                if (!isset($locators[$field_name])) {
+                $field_info = self::getUserEntityFieldInfo($field_name);
+
+                if (empty($field_info)) {
                     continue;
                 }
 
-                $field_name = $locators[$field_name]['field_name'];
-                $field_info = field_info_field($field_name);
+                $field_name = $field_info['field_name'];
 
-                if ($field_info['type'] == 'taxonomy_term_reference') {
-                    $settings = reset($field_info['settings']['allowed_values']);
-                    $taxonomy = taxonomy_vocabulary_machine_name_load($settings['vocabulary']);
-                    $term_exist = false;
+                switch ($field_info['type']) {
+                    case 'taxonomy_term_reference':
+                        // Try to find taxonomy term by it name.
+                        $terms = taxonomy_term_load_multiple([], ['name' => $value]);
 
-                    // Find taxonomy term by it name.
-                    foreach (taxonomy_get_tree($taxonomy->vid, $settings['parent']) as $term) {
-                        if ($term->name == $value) {
-                            $value = $term->tid;
-                            $term_exist = true;
-                            break;
+                        if (!$terms) {
+                            throw new \InvalidArgumentException(sprintf('Taxonomy term "%s" does no exist.', $value));
                         }
-                    }
 
-                    if (!$term_exist) {
-                        throw new \InvalidArgumentException(sprintf(
-                            'Taxonomy term "%s" does no exist in "%s" vocabulary',
-                            $value,
-                            $taxonomy->name
-                        ));
-                    }
+                        $value = key($terms);
+                        break;
                 }
 
                 $entity->{$field_name}->set($value);
@@ -107,6 +85,8 @@ class UserContext extends RawUserContext
 
     /**
      * @param TableNode $credentials
+     *   | username | BR0kEN |
+     *   | password | p4sswd |
      *
      * @throws \Exception
      *
@@ -116,15 +96,6 @@ class UserContext extends RawUserContext
      */
     public function loginWithCredentials(TableNode $credentials)
     {
-        $data = $credentials->getRowsHash();
-        $this->fillLoginForm($data);
-
-        if (!$this->isLoggedIn()) {
-            throw new \Exception(sprintf(
-                'Unable to login with "%s" and "%s" credentials',
-                $data['name'],
-                $data['pass']
-            ));
-        }
+        $this->fillLoginForm($credentials->getRowsHash());
     }
 }

@@ -9,6 +9,7 @@
     "email": "broken@propeople.com.ua"
   }],
   "require": {
+    "php": ">=5.4",
     "drupal/drupal-extension": "~3.0"
   },
   "autoload": {

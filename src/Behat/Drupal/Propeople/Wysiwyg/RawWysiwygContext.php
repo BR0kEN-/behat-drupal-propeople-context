@@ -12,8 +12,8 @@ use WebDriver\Exception\NoSuchElement;
 
 class RawWysiwygContext extends RawPropeopleContext
 {
-    protected $wysiwyg;
-    private $selector;
+    protected $wysiwyg = '';
+    private $selector = '';
 
     /**
      * Get the editor instance for use in Javascript.
@@ -30,9 +30,9 @@ class RawWysiwygContext extends RawPropeopleContext
      * @return string
      *   A Javascript expression representing the WYSIWYG instance.
      */
-    public function getWysiwygInstance($selector = null)
+    public function getWysiwygInstance($selector = '')
     {
-        if (!$selector && !$this->wysiwyg) {
+        if (empty($selector) && !$this->wysiwyg) {
             throw new \RuntimeException('No such editor was not selected.');
         }
 
@@ -71,7 +71,7 @@ class RawWysiwygContext extends RawPropeopleContext
      * @return string
      *   Result of JS evaluation.
      */
-    public function executeWysiwygMethod($method, $arguments = '', $selector = null)
+    public function executeWysiwygMethod($method, $arguments = '', $selector = '')
     {
         if ($arguments && is_array($arguments)) {
             $arguments = "'" . implode("','", $arguments) . "'";

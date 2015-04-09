@@ -123,7 +123,7 @@ class EmailContext extends RawEmailContext
         foreach ($this->getEmailMessages() as $message) {
             if (!empty($message['body'])) {
                 $regexps = call_user_func($this->mailAccountStrings, self::PARSE_STRING, self::PARSE_STRING);
-                $matches = array();
+                $matches = [];
 
                 foreach (explode(PHP_EOL, $message['body']) as $string) {
                     foreach ($regexps as $name => $regexp) {
@@ -134,27 +134,7 @@ class EmailContext extends RawEmailContext
                 }
 
                 if (!empty($matches['username']) && !empty($matches['password'])) {
-                    $this->getSession()->visit($this->locatePath('/user/login'));
-                    $page = $this->getWorkingElement();
-
-                    foreach ($matches as $name => $credential) {
-                        $page->fillField($this->getDrupalText($name . '_field'), $credential);
-                    }
-
-                    $button_text = $this->getDrupalText('log_in');
-                    $submit = $page->findButton($button_text);
-
-                    $this->throwNoSuchElementException(sprintf('%s text', $button_text), $submit);
-                    $submit->click();
-
-                    if (!$this->isLoggedIn()) {
-                        throw new \Exception(sprintf(
-                            'Failed to login as user "%s" with password "%s"',
-                            $matches['username'],
-                            $matches['password']
-                        ));
-                    }
-
+                    $this->getUserContext()->fillLoginForm($matches);
                     $success = true;
                     break;
                 }

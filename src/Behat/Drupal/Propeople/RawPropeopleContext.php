@@ -5,16 +5,9 @@
 namespace Behat\Drupal\Propeople;
 
 // Contexts.
-use Drupal\DrupalExtension\Context\RawDrupalContext;
+use Behat\Drupal\Propeople as BDP;
+use Drupal\DrupalExtension\Context as DEC;
 use Behat\Behat\Context\SnippetAcceptingContext;
-use Behat\Drupal\Propeople\User\UserContext;
-use Behat\Drupal\Propeople\Email\EmailContext;
-use Behat\Drupal\Propeople\Drush\DrushContext;
-use Behat\Drupal\Propeople\Wysiwyg\WysiwygContext;
-use Behat\Drupal\Propeople\Redirect\RedirectContext;
-use Drupal\DrupalExtension\Context\MinkContext;
-use Drupal\DrupalExtension\Context\DrupalContext;
-use Drupal\DrupalExtension\Context\MessageContext;
 
 // Exceptions.
 use WebDriver\Exception\NoSuchElement;
@@ -22,27 +15,29 @@ use WebDriver\Exception\NoSuchElement;
 // Helpers.
 use Behat\Mink\Session;
 use Behat\Mink\Element\NodeElement;
-use Behat\Behat\Hook\Scope\StepScope;
 use Behat\Mink\Element\DocumentElement;
+use Behat\Behat\Hook\Scope\StepScope;
 
 /**
  * @see __call()
  *
- * @method UserContext getUserContext()
- * @method EmailContext getEmailContext()
- * @method DrushContext getDrushContext()
- * @method WysiwygContext getWysiwygContext()
- * @method RedirectContext getRedirectContext()
- * @method PropeopleContext getPropeopleContext()
- * @method MinkContext getMinkContext()
- * @method DrupalContext getDrupalContext()
- * @method MessageContext getMessageContext()
+ * @method BDP\User\UserContext getUserContext()
+ * @method BDP\Form\FormContext getFormContext()
+ * @method BDP\Email\EmailContext getEmailContext()
+ * @method BDP\Drush\DrushContext getDrushContext()
+ * @method BDP\Wysiwyg\WysiwygContext getWysiwygContext()
+ * @method BDP\Redirect\RedirectContext getRedirectContext()
+ * @method BDP\PropeopleContext getPropeopleContext()
+ * @method DEC\MinkContext getMinkContext()
+ * @method DEC\DrupalContext getDrupalContext()
+ * @method DEC\MessageContext getMessageContext()
+ * @method \Drupal\Component\Utility\Random getRandom()
  */
-class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingContext
+class RawPropeopleContext extends DEC\RawDrupalContext implements SnippetAcceptingContext
 {
-    const DRUPAL_EXTENSION_CONTEXT_NAMESPACE = 'Drupal\DrupalExtension\Context';
     private $workingElement = null;
     private $baseUrl = '';
+    protected $tags = [];
 
     /**
      * @param string $method
@@ -61,11 +56,11 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
         $environment = $this->getEnvironment();
         $object = '';
 
-        foreach (array(
-            array(__NAMESPACE__, $namespace),
-            array(__NAMESPACE__),
-            array('Drupal', 'DrupalExtension', 'Context'),
-        ) as $class) {
+        foreach ([
+            [__NAMESPACE__, $namespace],
+            [__NAMESPACE__],
+            ['Drupal', 'DrupalExtension', 'Context'],
+        ] as $class) {
             $class[] = $context;
             $class = implode('\\', $class);
 
@@ -84,18 +79,6 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
         }
 
         return $environment->getContext($object);
-    }
-
-    /**
-     * @BeforeSuite @api
-     */
-    public static function beforeSuite()
-    {
-        self::setDrupalVariables(array(
-          // Set to "FALSE", because the administration menu will not be rendered.
-          // https://www.drupal.org/node/2023625#comment-8607207
-          'admin_menu_cache_client' => false,
-        ));
     }
 
     /**
@@ -163,7 +146,7 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
      */
     public function getBaseUrl()
     {
-        if (!$this->baseUrl) {
+        if (empty($this->baseUrl)) {
             $url = parse_url($this->getMinkParameter('base_url'));
             $this->baseUrl = $url['scheme'] . '://' . $url['host'];
         }
@@ -266,14 +249,6 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     }
 
     /**
-     * @return \Drupal\Component\Utility\Random
-     */
-    public function getRandom()
-    {
-        return parent::getRandom();
-    }
-
-    /**
      * @return \Drupal\Driver\DrushDriver
      */
     public function getDrushDriver()
@@ -282,111 +257,22 @@ class RawPropeopleContext extends RawDrupalContext implements SnippetAcceptingCo
     }
 
     /**
-     * @param array $data
-     *   Additional data for user account.
-     *
-     * @return \stdClass
+     * Wait for all AJAX requests and jQuery animations.
      */
-    public function createTestUser(array $data = array())
-    {
-        $random = $this->getRandom();
-        $username = $random->name(8);
-        $user = $data + array(
-          'name' => $username,
-          'pass' => $random->name(16),
-          'mail' => "$username@example.com",
-        );
-
-        $user = (object) $user;
-        $this->userCreate($user);
-
-        return $user;
-    }
-
-    public function isLoggedIn()
-    {
-        $session = $this->getSession();
-        // We need to visit any page to start session, otherwise the next exception will
-        // be thrown: "Unable to access the response content before visiting a page".
-        $session->visit($this->locatePath('/'));
-
-        if (!empty($session->getCookie(session_name()))) {
-            return true;
-        }
-
-        $body = $session->getPage()->find('css', 'body');
-
-        return $body && in_array('logged-in', explode(' ', $body->getAttribute('class')));
-    }
-
-    /**
-     * Find all field labels by text.
-     *
-     * @param string $text
-     *   Label text.
-     * @param bool $first
-     *   Indicates to find all or only first found item.
-     * @param bool $return_fields
-     *   if "true" - labels will be return, "false" - fields.
-     *
-     * @return NodeElement[]
-     */
-    public function findFieldLabels($text, $first = false, $return_fields = false)
-    {
-        $page = $this->getWorkingElement();
-        $labels = $fields = array();
-
-        /* @var NodeElement $label */
-        foreach ($page->findAll('xpath', "//label[starts-with(text(), '$text')]") as $label) {
-            $element_id = $label->getAttribute('for');
-
-            if ($element_id) {
-                $labels[] = $label;
-            }
-
-            // We trying to find an ID with "-upload" suffix, because some
-            // image inputs in Drupal are suffixed by it.
-            foreach (array($element_id, "$element_id-upload") as $element_id) {
-                $field = $page->findById($element_id);
-
-                if ($field) {
-                    $fields[] = $field;
-                    break;
-                }
-            }
-
-            if ($first) {
-                break;
-            }
-        }
-
-        return $return_fields ? $fields : $labels;
-    }
-
-    /**
-     * @param string $selector
-     * @param NodeElement|DocumentElement $element
-     *
-     * @return NodeElement|null
-     */
-    public function findField($selector, $element = null)
-    {
-        $element = $element ?: $this->getWorkingElement();
-        $field = $element->findField($selector);
-
-        if (!$field) {
-            $field = $this->findFieldLabels($selector, true, true);
-
-            if (is_array($field)) {
-                $field = reset($field);
-            }
-        }
-
-        return $field;
-    }
-
     public function waitAjaxAndAnimations()
     {
-        $this->getSession()->wait(1000, "window.__behatAjax === false && !jQuery(':animated').length");
+        $this->getSession()
+            ->wait(1000, "window.__behatAjax === false && !jQuery(':animated').length && !jQuery.active");
+    }
+
+    /**
+     * @param string $tag
+     *
+     * @return bool
+     *   Indicates the state of tag existence in a feature and/or scenario.
+     */
+    public function hasTag($tag)
+    {
+        return in_array($tag, $this->tags);
     }
 }

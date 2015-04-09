@@ -28,7 +28,7 @@ class WysiwygContext extends RawWysiwygContext
      */
     public function unsetWysiwyg()
     {
-        $this->wysiwyg = null;
+        $this->wysiwyg = '';
     }
 
     /**
@@ -42,9 +42,9 @@ class WysiwygContext extends RawWysiwygContext
      *
      * @javascript @wysiwyg
      */
-    public function setData($text, $selector = null)
+    public function setData($text, $selector = '')
     {
-        $this->executeWysiwygMethod(__FUNCTION__, array($text), $selector);
+        $this->executeWysiwygMethod(__FUNCTION__, [$text], $selector);
     }
 
     /**
@@ -58,9 +58,9 @@ class WysiwygContext extends RawWysiwygContext
      *
      * @javascript @wysiwyg
      */
-    public function insertText($text, $selector = null)
+    public function insertText($text, $selector = '')
     {
-        $this->executeWysiwygMethod(__FUNCTION__, array($text), $selector);
+        $this->executeWysiwygMethod(__FUNCTION__, [$text], $selector);
     }
 
     /**
@@ -77,13 +77,13 @@ class WysiwygContext extends RawWysiwygContext
      *
      * @javascript @wysiwyg
      */
-    public function getData($condition, $text, $selector = null)
+    public function getData($condition, $text, $selector = '')
     {
         $condition = (bool) $condition;
 
-        if (strpos($this->executeWysiwygMethod(__FUNCTION__, null, $selector), $text) === $condition) {
-            throw new \RuntimeException(
-                sprintf('The text "%s" was %s found in the "%s" WYSIWYG editor.',
+        if (strpos($this->executeWysiwygMethod(__FUNCTION__, '', $selector), $text) === $condition) {
+            throw new \RuntimeException(sprintf(
+                'The text "%s" was %s found in the "%s" WYSIWYG editor.',
                 $text,
                 $condition ? '' : 'not',
                 $this->getEditorSelector()
